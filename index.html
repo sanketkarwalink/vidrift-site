@@ -118,9 +118,9 @@ footer{text-align:center;padding:40px;color:rgba(243,237,226,0.2);font-size:13px
   <div class="player-sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Content</div>
-      <button class="cat-btn active" data-cat="movie" data-id="550">Movies</button>
-      <button class="cat-btn" data-cat="tv" data-id="1396">TV</button>
-      <button class="cat-btn" data-cat="anime" data-id="37854">Anime</button>
+      <button class="cat-btn active" data-cat="movie" data-id="550" data-label="Fight Club">Movies</button>
+      <button class="cat-btn" data-cat="tv" data-id="1396" data-label="Breaking Bad">TV</button>
+      <button class="cat-btn" data-cat="anime" data-id="37854" data-label="One Punch Man">Anime</button>
     </div>
 
     <div class="sidebar-section" id="episode-section" style="display:none">
@@ -271,7 +271,7 @@ footer{text-align:center;padding:40px;color:rgba(243,237,226,0.2);font-size:13px
   var seasonSel = document.getElementById('season-select');
   var episodeSel = document.getElementById('episode-select');
   var popularList = document.getElementById('popular-list');
-  var currentCat = 'movie', currentId = '550', currentSeason = '1', currentEpisode = '1';
+  var currentCat = 'movie', currentId = '550', currentSeason = '1', currentEpisode = '1', currentLabel = 'Fight Club';
 
   var popular = {
     movie: [
@@ -293,9 +293,10 @@ footer{text-align:center;padding:40px;color:rgba(243,237,226,0.2);font-size:13px
 
   function buildUrl(){
     var base = 'https://embed.vidrift.in/embed';
-    if (currentCat === 'movie') return base + '/movie/' + currentId;
+    var title = '?title=' + encodeURIComponent(currentLabel);
+    if (currentCat === 'movie') return base + '/movie/' + currentId + title;
     // Anime has no separate backend route -- it's TV content under the hood.
-    return base + '/tv/' + currentId + '/' + currentSeason + '/' + currentEpisode;
+    return base + '/tv/' + currentId + '/' + currentSeason + '/' + currentEpisode + title;
   }
 
   function loadPlayer(src){
@@ -309,19 +310,19 @@ footer{text-align:center;padding:40px;color:rgba(243,237,226,0.2);font-size:13px
     var label = cat === 'movie' ? 'Popular Movies' : cat === 'tv' ? 'Popular TV Shows' : 'Popular Anime';
     var html = '<div class="sidebar-label">' + label + '</div>';
     items.forEach(function(item){
-      html += '<button class="quick-btn" data-cat="' + cat + '" data-id="' + item.id + '">' + item.label + '</button>';
+      html += '<button class="quick-btn" data-cat="' + cat + '" data-id="' + item.id + '" data-label="' + item.label + '">' + item.label + '</button>';
     });
     popularList.innerHTML = html;
     popularList.querySelectorAll('.quick-btn').forEach(function(btn){
       btn.addEventListener('click', function(){
-        switchContent(btn.dataset.cat, btn.dataset.id, true);
+        switchContent(btn.dataset.cat, btn.dataset.id, btn.dataset.label, true);
       });
     });
   }
 
-  function switchContent(cat, id, resetEp){
+  function switchContent(cat, id, label, resetEp){
     if (cat !== currentCat) { currentSeason = '1'; currentEpisode = '1'; }
-    currentCat = cat; currentId = id;
+    currentCat = cat; currentId = id; currentLabel = label || currentLabel;
     catBtns.forEach(function(b){ b.classList.remove('active'); });
     var match = document.querySelector('.cat-btn[data-cat="' + cat + '"][data-id="' + id + '"]');
     if (match) match.classList.add('active');
@@ -362,7 +363,7 @@ footer{text-align:center;padding:40px;color:rgba(243,237,226,0.2);font-size:13px
 
   catBtns.forEach(function(btn){
     btn.addEventListener('click', function(){
-      switchContent(btn.dataset.cat, btn.dataset.id);
+      switchContent(btn.dataset.cat, btn.dataset.id, btn.dataset.label);
     });
   });
 
