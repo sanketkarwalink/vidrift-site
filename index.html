@@ -191,17 +191,12 @@ footer{text-align:center;padding:40px;color:rgba(243,237,226,0.2);font-size:13px
   <div class="code">&lt;!-- Breaking Bad S01E01 --&gt;
 &lt;iframe src="https://embed.vidrift.in/embed/tv/1396/1/1"&gt;&lt;/iframe&gt;</div>
 
-  <h3>Anime — Shows</h3>
-  <div class="code">https://embed.vidrift.in/embed/anime/{tmdb_id}/{season}/{episode}</div>
-  <div class="label">Anime Show Example</div>
+  <h3>Anime</h3>
+  <p>Anime titles use the same URL shape as TV shows — look up the ID on TMDB the same way.</p>
+  <div class="code">https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}</div>
+  <div class="label">Anime Example</div>
   <div class="code">&lt;!-- One Punch Man S01E01 --&gt;
-&lt;iframe src="https://embed.vidrift.in/embed/anime/37854/1/1"&gt;&lt;/iframe&gt;</div>
-
-  <h2>Source API</h2>
-  <p>For raw stream data without the player UI:</p>
-  <div class="code">https://embed.vidrift.in/api/source/movie/{tmdb_id}
-https://embed.vidrift.in/api/source/tv/{tmdb_id}/{season}/{episode}</div>
-  <p>Returns JSON with HLS stream URLs, subtitle tracks, and metadata.</p>
+&lt;iframe src="https://embed.vidrift.in/embed/tv/37854/1/1"&gt;&lt;/iframe&gt;</div>
 
   <h2>Finding Content IDs</h2>
   <p>Movie and TV show IDs can be found with <a href="https://developer.themoviedb.org" style="color:#d4af6a" target="_blank">TMDB API</a> or in the URL when visiting themoviedb.org:</p>
@@ -299,7 +294,8 @@ https://embed.vidrift.in/api/source/tv/{tmdb_id}/{season}/{episode}</div>
   function buildUrl(){
     var base = 'https://embed.vidrift.in/embed';
     if (currentCat === 'movie') return base + '/movie/' + currentId;
-    return base + '/' + currentCat + '/' + currentId + '/' + currentSeason + '/' + currentEpisode;
+    // Anime has no separate backend route -- it's TV content under the hood.
+    return base + '/tv/' + currentId + '/' + currentSeason + '/' + currentEpisode;
   }
 
   function loadPlayer(src){
