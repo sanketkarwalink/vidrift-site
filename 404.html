@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not found — VidRift</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#09090A;--accent:#E50914;--accent-rgb:229,9,20;--text:#FAF8F6;--text-rgb:250,248,246;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);font-family:'Archivo',ui-sans-serif,sans-serif;
+  min-height:100vh;display:grid;place-items:center;padding:32px;text-align:center;
+  -webkit-font-smoothing:antialiased;position:relative;overflow:hidden;
+}
+body::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(680px 420px at 50% 18%,rgba(var(--accent-rgb),.16),transparent 62%);
+}
+body::after{
+  content:'';position:fixed;inset:-50%;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+main{position:relative;max-width:44ch}
+.code{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;color:rgba(var(--text-rgb),.34);text-transform:uppercase}
+h1{font-variation-settings:'wdth' 122;font-weight:800;font-size:clamp(38px,7vw,64px);letter-spacing:-.035em;line-height:1;margin:18px 0 16px}
+h1 em{font-style:normal;color:var(--accent)}
+p{color:rgba(var(--text-rgb),.56);line-height:1.65;font-size:16px}
+a.home{
+  display:inline-flex;align-items:center;gap:9px;margin-top:28px;padding:13px 22px;border-radius:11px;
+  background:linear-gradient(180deg,#F5151F,#B70710);color:#fff;text-decoration:none;font-weight:600;font-size:14.5px;
+  box-shadow:0 14px 34px -14px rgba(var(--accent-rgb),.75),inset 0 1px 0 rgba(255,255,255,.22);
+  transition:transform .3s cubic-bezier(.16,1,.3,1);
+}
+a.home:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+<main>
+  <span class="code">Error 404</span>
+  <h1>No such page<em>.</em></h1>
+  <p>The embed API is still running — this URL just isn't part of it. Head back and grab your iframe from the playground.</p>
+  <a class="home" href="/">Back to vidrift<span aria-hidden="true">&nbsp;→</span></a>
+</main>
+</body>
+</html>
