@@ -518,7 +518,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
       <p class="lede">VidRift is a free embed API for movies, TV and anime. Paste one URL, get an adaptive HLS player with subtitles, quality control and auto-next — on any site, in under a minute.</p>
 
       <div class="url-strip">
-        <code id="hero-url">https://embed.vidrift.in/embed/movie/<b>550</b></code>
+        <code id="hero-url">https://embed.vidrift.in/embed/movie/<b>1440098</b></code>
         <button class="copy-btn" id="hero-copy" type="button">Copy</button>
       </div>
 
@@ -559,7 +559,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
         <div class="stage">
           <div class="stage-frame">
             <div class="placeholder" id="placeholder">
-              <img class="ph-poster" id="ph-poster" alt="" src="https://image.tmdb.org/t/p/w780/jSziioSwPVrOy9Yow3XhWIBDjq1.jpg">
+              <img class="ph-poster" id="ph-poster" alt="" src="https://image.tmdb.org/t/p/w780/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg">
               <div class="play-ring"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="7 4 20 12 7 20"/></svg></div>
               <span>Click to start the player</span>
             </div>
@@ -567,8 +567,8 @@ table.ref td:first-child{white-space:nowrap;width:1%}
           </div>
           <div class="now">
             <span class="live-dot"></span>
-            <strong id="now-title">Fight Club</strong>
-            <span class="meta" id="now-meta">MOVIE · TMDB 550</span>
+            <strong id="now-title">Drawn Together</strong>
+            <span class="meta" id="now-meta">MOVIE · TMDB 1440098</span>
           </div>
         </div>
 
@@ -688,7 +688,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
       <article class="step">
         <div class="step-head"><span class="step-n">1</span><h3>Drop in the iframe</h3></div>
         <p>Movies take a TMDB id. TV and anime take a TMDB id, a season and an episode.</p>
-        <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/550"</span>
+        <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098"</span>
   <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span>
 
 <span class="tk-com">&lt;!-- TV / anime: /embed/tv/{id}/{season}/{episode} --&gt;</span>
@@ -699,7 +699,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
         <div class="step-head"><span class="step-n">2</span><h3>Make it responsive</h3></div>
         <p>A 16:9 wrapper keeps the player sharp on every screen without a resize listener.</p>
         <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
-  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/550"</span>
+  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098"</span>
     <span class="tk-atr">style</span>=<span class="tk-str">"position:absolute;inset:0;width:100%;height:100%;border:0"</span>
     <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span>
 <span class="tk-tag">&lt;/div&gt;</span></pre></div>
@@ -832,7 +832,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
     <h3>1. Add the player</h3>
     <p>Paste this where you want the player to appear. This is a complete, working embed.</p>
     <span class="cap">Basic implementation</span>
-    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/550"</span>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098"</span>
   <span class="tk-atr">width</span>=<span class="tk-str">"100%"</span> <span class="tk-atr">height</span>=<span class="tk-str">"100%"</span>
   <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span>
   <span class="tk-atr">style</span>=<span class="tk-str">"border:none"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span></pre></div>
@@ -842,7 +842,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
     <span class="cap">Responsive container</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-com">&lt;!-- 16:9 aspect ratio container --&gt;</span>
 <span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
-  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/550"</span>
+  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098"</span>
     <span class="tk-atr">style</span>=<span class="tk-str">"position:absolute;top:0;left:0;width:100%;height:100%"</span>
     <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;</span>
   <span class="tk-tag">&lt;/iframe&gt;</span>
@@ -854,8 +854,8 @@ table.ref td:first-child{white-space:nowrap;width:1%}
     <h3>Movies</h3>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.in/embed/movie/{tmdb_id}</pre></div>
     <span class="cap">Movie example</span>
-    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-com">&lt;!-- Fight Club (TMDB 550) --&gt;</span>
-<span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/550"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span></pre></div>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-com">&lt;!-- Drawn Together (TMDB 1440098) --&gt;</span>
+<span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span></pre></div>
 
     <h3>TV shows</h3>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}</pre></div>
@@ -885,7 +885,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
     <h2 id="ids">Finding TMDB ids</h2>
     <p>Ids come from <a class="lk" href="https://www.themoviedb.org" target="_blank" rel="noopener">themoviedb.org</a> — they are in the URL of any title page, and available through the <a class="lk" href="https://developer.themoviedb.org" target="_blank" rel="noopener">TMDB API</a>.</p>
     <ul>
-      <li>Movies — <code>themoviedb.org/movie/550</code> → id is <code>550</code></li>
+      <li>Movies — <code>themoviedb.org/movie/1440098</code> → id is <code>1440098</code></li>
       <li>TV &amp; anime — <code>themoviedb.org/tv/1396</code> → id is <code>1396</code></li>
     </ul>
     <p>The playground on the home page builds the finished URL for you — pick a title, set the season and episode, and copy the result.</p>
@@ -898,7 +898,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
       <li><code>brandColor</code> — a 6-digit hex accent, with or without the <code>#</code>. Drives the wordmark, progress bar, glow and source indicators.</li>
     </ul>
     <span class="cap">Fully branded embed</span>
-    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/550?title=Fight%20Club&amp;brand=Acme%20Stream&amp;brandLogo=https://acme.com/logo.svg&amp;brandColor=%2300d1b2"</span>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098?title=Drawn%20Together&amp;brand=Acme%20Stream&amp;brandLogo=https://acme.com/logo.svg&amp;brandColor=%2300d1b2"</span>
   <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span></pre></div>
     <p>Anything invalid is silently ignored rather than breaking playback: a non-https logo, a colour that isn't a hex triplet, or a logo URL that 404s all fall back to the default VidRift styling. The <a class="lk" href="/#playground" data-page="home">playground</a> builds this URL for you.</p>
 
@@ -961,7 +961,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
     <h2 id="mobile">Native mobile settings sheet</h2>
     <p>On mobile the player's Settings / Subtitles / Source buttons open their own compact in-player panel. If you would rather render a native-feeling bottom sheet in your site's own UI, opt in with a URL flag plus a listener.</p>
     <span class="cap">Enable delegation</span>
-    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.in/embed/movie/550?mobileSheets=true</pre></div>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.in/embed/movie/1440098?mobileSheets=true</pre></div>
     <span class="cap">Player → Parent</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
   <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.in"</span>) <span class="tk-key">return</span>;
@@ -1159,12 +1159,12 @@ table.ref td:first-child{white-space:nowrap;width:1%}
   // ships a demo that plays the wrong show.
   var PICKS = {
     movie: [
+      { id: 1440098, t: 'Drawn Together', p: '/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg', r: '6.8' },
       { id: 157336, t: 'Interstellar', p: '/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg', r: '8.5' },
       { id: 155, t: 'The Dark Knight', p: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg', r: '8.5' },
       { id: 693134, t: 'Dune: Part Two', p: '/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg', r: '8.1' },
       { id: 872585, t: 'Oppenheimer', p: '/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', r: '8.0' },
-      { id: 27205, t: 'Inception', p: '/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg', r: '8.4' },
-      { id: 550, t: 'Fight Club', p: '/jSziioSwPVrOy9Yow3XhWIBDjq1.jpg', r: '8.4' }
+      { id: 27205, t: 'Inception', p: '/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg', r: '8.4' }
     ],
     tv: [
       { id: 1396, t: 'Breaking Bad', p: '/anFx9aTOOYqgS3v7x3R84Kz67ly.jpg', r: '8.9', s: 5 },
@@ -1181,7 +1181,7 @@ table.ref td:first-child{white-space:nowrap;width:1%}
     ]
   };
 
-  var cur = { kind: 'movie', id: 550, title: 'Fight Club', poster: '/jSziioSwPVrOy9Yow3XhWIBDjq1.jpg', season: 1, episode: 1 };
+  var cur = { kind: 'movie', id: 1440098, title: 'Drawn Together', poster: '/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg', season: 1, episode: 1 };
   var started = false;
   var catalog = null;
 
