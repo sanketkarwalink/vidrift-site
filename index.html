@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://embed.vidrift.in">
+<link rel="preconnect" href="https://embed.vidrift.net">
 <link rel="preconnect" href="https://image.tmdb.org">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -339,7 +339,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <!-- the URL, live. edit the id, press enter, it plays. -->
     <div class="composer">
       <div class="composer-url" aria-label="Embed URL">
-        <span class="u-dim">https://embed.vidrift.in/embed/</span><span class="u-kind" id="u-kind">movie</span><span class="u-dim">/</span><input class="u-id" id="u-id" value="1440098" inputmode="numeric" pattern="[0-9]*" aria-label="TMDB id" spellcheck="false" autocomplete="off"><span class="u-ep" id="u-ep" hidden><span class="u-dim">/</span><select class="u-sel" id="season" aria-label="Season"></select><span class="u-dim">/</span><select class="u-sel" id="episode" aria-label="Episode"></select></span>
+        <span class="u-dim">https://embed.vidrift.net/embed/</span><span class="u-kind" id="u-kind">movie</span><span class="u-dim">/</span><input class="u-id" id="u-id" value="1440098" inputmode="numeric" pattern="[0-9]*" aria-label="TMDB id" spellcheck="false" autocomplete="off"><span class="u-ep" id="u-ep" hidden><span class="u-dim">/</span><select class="u-sel" id="season" aria-label="Season"></select><span class="u-dim">/</span><select class="u-sel" id="episode" aria-label="Episode"></select></span>
       </div>
       <div class="composer-actions">
         <button class="btn btn-ghost" id="hero-copy" type="button">Copy URL</button>
@@ -369,7 +369,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
         <iframe id="frame" title="VidRift player preview" style="display:none" allowfullscreen allow="autoplay; fullscreen; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
       </div>
       <div class="stage-bar">
-        <span class="live"><i></i>embed.vidrift.in</span>
+        <span class="live"><i></i>embed.vidrift.net</span>
         <div class="now"><strong id="now-title">Drawn Together</strong><span class="lab" id="now-meta">Movie · TMDB 1440098</span></div>
         <div class="out-tabs" role="tablist" aria-label="Snippet format">
           <button class="on" data-out="url" type="button">URL</button>
@@ -409,7 +409,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
       <p>One iframe is the whole integration. Progress saving, auto-next and white-label branding are in the <a class="lk" href="/docs" data-page="docs">docs</a>.</p>
     </div>
     <div class="codeblock" style="max-width:880px"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
-  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098"</span>
+  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.net/embed/movie/1440098"</span>
     <span class="tk-atr">style</span>=<span class="tk-str">"position:absolute;inset:0;width:100%;height:100%;border:0"</span>
     <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span>
 <span class="tk-tag">&lt;/div&gt;</span>
@@ -468,7 +468,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <p>Paste this where you want the player. It is a complete, working, responsive embed.</p>
     <span class="cap">Complete embed</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
-  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.in/embed/movie/1440098"</span>
+  <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.net/embed/movie/1440098"</span>
     <span class="tk-atr">style</span>=<span class="tk-str">"position:absolute;inset:0;width:100%;height:100%;border:0"</span>
     <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span>
 <span class="tk-tag">&lt;/div&gt;</span></pre></div>
@@ -476,13 +476,14 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 
     <h2 id="urls">URL structure</h2>
     <p>Two shapes. Anime is TV content under the hood, so it uses the TV shape with the show's TMDB id.</p>
+    <div class="note"><p>Already embedding <code>embed.vidrift.in</code>? Nothing to change: it serves the same player and sends the same messages, from the <code>https://embed.vidrift.in</code> origin. Switch to <code>embed.vidrift.net</code> whenever convenient, and update any <code>event.origin</code> check at the same time.</p></div>
     <span class="cap">Routes</span>
-    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.in/embed/movie/{tmdb_id}
-https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/{tmdb_id}
+https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
 
-<span class="tk-com">https://embed.vidrift.in/embed/movie/1440098     Drawn Together</span>
-<span class="tk-com">https://embed.vidrift.in/embed/tv/1396/1/1       Breaking Bad S01E01</span>
-<span class="tk-com">https://embed.vidrift.in/embed/tv/1429/1/1       Attack on Titan S01E01</span></pre></div>
+<span class="tk-com">https://embed.vidrift.net/embed/movie/1440098     Drawn Together</span>
+<span class="tk-com">https://embed.vidrift.net/embed/tv/1396/1/1       Breaking Bad S01E01</span>
+<span class="tk-com">https://embed.vidrift.net/embed/tv/1429/1/1       Attack on Titan S01E01</span></pre></div>
 
     <h2 id="params">Parameters</h2>
     <p>Every parameter is optional and validated server-side. Anything invalid is ignored rather than treated as an error, so a bad value never breaks playback.</p>
@@ -513,7 +514,7 @@ https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}
       <li><code>brandColor</code>: a 6-digit hex accent, with or without the <code>#</code>.</li>
     </ul>
     <span class="cap">Fully branded embed</span>
-    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.in/embed/movie/1440098
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/1440098
   ?title=Drawn%20Together
   &amp;brand=Acme%20Stream
   &amp;brandLogo=https://acme.com/logo.svg
@@ -529,18 +530,18 @@ https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>iframe.contentWindow.<span class="tk-fn">postMessage</span>({
   type: <span class="tk-str">"vidrift:nextup-info"</span>,
   next: { season: <span class="tk-key">1</span>, episode: <span class="tk-key">2</span> }
-}, <span class="tk-str">"https://embed.vidrift.in"</span>);</pre></div>
+}, <span class="tk-str">"https://embed.vidrift.net"</span>);</pre></div>
     <span class="cap">2 · Player → Parent, when the countdown ends or the viewer clicks Play Next</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
-  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.in"</span>) <span class="tk-key">return</span>;
+  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
   <span class="tk-key">if</span> (e.data.type === <span class="tk-str">"vidrift:nextup-play"</span>) {
     <span class="tk-com">// e.data: { tmdbId, mediaType, season, episode } of the episode that just finished</span>
-    iframe.src = <span class="tk-str">`https://embed.vidrift.in/embed/tv/${e.data.tmdbId}/${e.data.season}/${e.data.episode + 1}`</span>;
+    iframe.src = <span class="tk-str">`https://embed.vidrift.net/embed/tv/${e.data.tmdbId}/${e.data.season}/${e.data.episode + 1}`</span>;
   }
 });</pre></div>
 
     <h2 id="events">Messages</h2>
-    <p>Every message is scoped to the <code>https://embed.vidrift.in</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>.</p>
+    <p>Every message is scoped to the <code>https://embed.vidrift.net</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>.</p>
     <table class="ref">
       <thead><tr><th>Type</th><th>Direction</th><th>When</th></tr></thead>
       <tbody>
@@ -557,7 +558,7 @@ https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}
     </table>
     <span class="cap">One listener, every event</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
-  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.in"</span>) <span class="tk-key">return</span>;
+  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
   <span class="tk-key">switch</span> (e.data.type) {
     <span class="tk-key">case</span> <span class="tk-str">"vidrift:progress"</span>: <span class="tk-fn">save</span>(e.data.tmdbId, e.data.currentTime); <span class="tk-key">break</span>;
     <span class="tk-key">case</span> <span class="tk-str">"vidrift:ended"</span>:    <span class="tk-fn">markWatched</span>(e.data.tmdbId);         <span class="tk-key">break</span>;
@@ -568,7 +569,7 @@ https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}
     <p>On phones the player opens its own bottom sheet for Settings, Subtitles and Source. If you would rather render that sheet in your site's own UI, add <code>?mobileSheets=true</code> to the URL and answer the panel message. Leave the flag off and no listener is needed.</p>
     <span class="cap">Delegated sheet</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
-  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.in"</span>) <span class="tk-key">return</span>;
+  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
   <span class="tk-key">if</span> (e.data.type !== <span class="tk-str">"vidrift:mobile-panel"</span>) <span class="tk-key">return</span>;
   <span class="tk-com">// e.data.panel: "settings" | "subtitles" | "source"</span>
   <span class="tk-com">// e.data.options: [{ option, value, label, group }]  — "settings" mixes quality and speed</span>
@@ -577,7 +578,7 @@ https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}
     type: <span class="tk-str">"vidrift:mobile-option"</span>,
     option: chosen.option, <span class="tk-com">// use the chosen option's own field, not the panel name</span>
     value: chosen.value
-  }, <span class="tk-str">"https://embed.vidrift.in"</span>);
+  }, <span class="tk-str">"https://embed.vidrift.net"</span>);
 });</pre></div>
 
     <h2 id="notes">Notes &amp; limits</h2>
@@ -625,7 +626,7 @@ https://embed.vidrift.in/embed/tv/{tmdb_id}/{season}/{episode}
 <script>
 (function () {
   'use strict';
-  var EMBED = 'https://embed.vidrift.in';
+  var EMBED = 'https://embed.vidrift.net';
   var IMG = 'https://image.tmdb.org/t/p/';
   var $ = function (id) { return document.getElementById(id); };
 
