@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VidRift — the free video embed API. One URL, every title.</title>
-<meta name="description" content="Drop movies, TV and anime into any site with a single iframe. No API key, no signup. Adaptive HLS, subtitles in 30+ languages, auto-next, white-label branding and a postMessage API.">
+<meta name="description" content="Drop movies, TV and anime into any site with a single iframe. No API key, no signup. Adaptive HLS, subtitles in 30+ languages, auto-next, and a player you can skin: hide controls, your name, logo, accent, art and watermark, all from the URL.">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="canonical" href="https://vidrift.net/">
 <meta property="og:type" content="website">
@@ -203,6 +203,45 @@ h1 em,h2 em{font-style:normal;color:var(--brand)}
 .copy:hover{background:#fff}
 .copy:active{transform:scale(.97)}
 
+/* ── the tune panel: every parameter is a control, the URL rewrites live ── */
+.stage-body{display:grid;grid-template-columns:minmax(0,1fr) 336px}
+/* The panel is exactly the player's height and scrolls inside itself, so a
+   long option list never stretches the stage below 16:9. */
+.tune{position:relative;border-left:1px solid var(--hair-soft);background:var(--surface)}
+.tune-in{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;padding:16px 18px 14px;overflow:auto;scrollbar-width:thin}
+.tune-head{display:flex;align-items:center;justify-content:space-between}
+.tune-head .lab{color:var(--ink-2)}
+.tune-reset{height:26px;padding:0 10px;border:1px solid var(--hair);border-radius:4px;background:transparent;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,border-color .15s}
+.tune-reset:hover{color:var(--ink);border-color:var(--hair-strong)}
+.field{display:grid;gap:6px}
+.field>span{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.field>span code{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;text-transform:none;color:var(--ink-2)}
+.field input[type=text],.field input[type=url]{height:38px;width:100%;background:var(--bg);border:1px solid var(--hair);border-radius:var(--r);padding:0 11px;color:var(--paper);font-family:var(--mono);font-size:13px;transition:border-color .15s}
+.field input:focus{border-color:var(--paper);outline:0}
+.field input::placeholder{color:var(--ink-3)}
+.accent{display:flex;align-items:center;gap:6px}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid transparent;padding:0;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:transform .3s var(--spring),border-color .15s}
+.sw:hover{transform:scale(1.1)}
+.sw.on{border-color:var(--paper)}
+.sw-any{position:relative;overflow:hidden;background:conic-gradient(#f43,#fc3,#3d6,#39f,#c4f,#f43)}
+.sw-any input{position:absolute;inset:-8px;width:200%;height:200%;opacity:0;cursor:pointer}
+.hides{display:flex;flex-wrap:wrap;gap:5px}
+.hd{height:28px;padding:0 10px;border:1px solid var(--hair);border-radius:999px;background:transparent;font-size:12px;font-weight:700;color:var(--ink-2);transition:background .15s,color .15s,border-color .15s,transform .3s var(--spring)}
+.hd:hover{border-color:var(--hair-strong);color:var(--ink)}
+.hd.on{background:var(--paper);border-color:var(--paper);color:var(--bg);text-decoration:line-through}
+.hd:active{transform:scale(.95)}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.tog small{display:block;font-weight:500;color:var(--ink-3);font-size:12px;margin-top:2px}
+.switch{position:relative;width:38px;height:22px;flex-shrink:0}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.switch i{position:absolute;inset:0;border-radius:999px;background:var(--surface-2);border:1px solid var(--hair);transition:background .2s,border-color .2s}
+.switch i::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--ink-2);transition:transform .3s var(--spring),background .2s}
+.switch input:checked+i{background:var(--paper);border-color:var(--paper)}
+.switch input:checked+i::after{background:var(--bg);transform:translateX(16px)}
+.switch input:disabled+i{opacity:.4}
+.tune-hint{font-size:12.5px;line-height:1.55;color:var(--ink-3);padding-top:10px;border-top:1px solid var(--hair-soft)}
+.tune-hint b{color:var(--ink-2);font-weight:600}
+
 /* ── sections ────────────────────────────────────────────── */
 .section{padding:104px 0 0}
 .sec-head{max-width:880px;padding-bottom:28px;border-bottom:1px solid var(--hair);margin-bottom:36px}
@@ -282,6 +321,9 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 
 /* ── responsive ──────────────────────────────────────────── */
 @media(max-width:980px){
+  .stage-body{grid-template-columns:minmax(0,1fr)}
+  .tune{border-left:0;border-top:1px solid var(--hair-soft)}
+  .tune-in{position:static}
   .docs-wrap{grid-template-columns:minmax(0,1fr);gap:32px}
   .toc{position:static;display:flex;flex-wrap:wrap;gap:4px}
   .toc h4{width:100%}
@@ -333,8 +375,8 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 <section class="hero" id="play">
   <div class="shell">
     <p class="lab"><span class="dot"></span>Free embed API · no key · no signup</p>
-    <h1>One URL<em>.</em><br>Every title<em>.</em></h1>
-    <p class="lede">Paste one iframe and any site gets the VidRift player: adaptive HLS, subtitles in 30+ languages, auto-next episodes, your brand on the loading card. <b>80,000 movies, series and anime</b>, addressed by TMDB id.</p>
+    <h1>One URL<em>.</em><br>Every title<em>.</em><br>Your look<em>.</em></h1>
+    <p class="lede">Paste one iframe and any site gets the VidRift player: adaptive HLS, subtitles in 30+ languages, auto-next episodes. Then make it yours from the URL: hide any control, add your name, logo, accent, art and watermark. <b>80,000 movies, series and anime</b>, addressed by TMDB id. Try every option live below.</p>
 
     <!-- the URL, live. edit the id, press enter, it plays. -->
     <div class="composer">
@@ -357,6 +399,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     </div>
 
     <div class="stage">
+      <div class="stage-body">
       <div class="stage-frame">
         <button class="placeholder" id="placeholder" type="button" aria-label="Play in the real player">
           <img class="ph-bg" id="ph-bg" alt="" src="https://image.tmdb.org/t/p/w342/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg">
@@ -367,6 +410,42 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
           </span>
         </button>
         <iframe id="frame" title="VidRift player preview" style="display:none" allowfullscreen allow="autoplay; fullscreen; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <aside class="tune" id="tune" aria-label="Customise the player"><div class="tune-in">
+        <div class="tune-head"><span class="lab">Customise</span><button class="tune-reset" id="tune-reset" type="button">Reset</button></div>
+        <label class="field"><span>Your name <code>brand</code></span><input type="text" id="t-brand" maxlength="28" placeholder="Acme Stream" autocomplete="off" spellcheck="false"></label>
+        <div class="field"><span>Accent <code>brandColor</code></span>
+          <div class="accent" id="t-accent">
+            <button class="sw on" type="button" data-c="" style="--c:#E50914" aria-label="Default red"></button>
+            <button class="sw" type="button" data-c="00d1b2" style="--c:#00d1b2" aria-label="Teal"></button>
+            <button class="sw" type="button" data-c="ffb020" style="--c:#ffb020" aria-label="Amber"></button>
+            <button class="sw" type="button" data-c="7c5cff" style="--c:#7c5cff" aria-label="Violet"></button>
+            <button class="sw" type="button" data-c="2fbf71" style="--c:#2fbf71" aria-label="Green"></button>
+            <label class="sw sw-any" aria-label="Any colour"><input type="color" id="t-color" value="#E50914"></label>
+          </div>
+        </div>
+        <label class="field"><span>Logo <code>brandLogo</code></span><input type="url" id="t-logo" placeholder="https://…/logo.png" autocomplete="off" spellcheck="false"></label>
+        <label class="tog"><span>Watermark<small>Your logo in the corner while playing · <code>watermark=1</code></small></span><span class="switch"><input type="checkbox" id="t-watermark" disabled><i></i></span></label>
+        <label class="field"><span>Loading art <code>poster</code></span><input type="url" id="t-poster" placeholder="https://…/backdrop.jpg" autocomplete="off" spellcheck="false"></label>
+        <div class="field"><span>Hide controls <code>hide</code></span>
+          <div class="hides" id="t-hide">
+            <button class="hd" type="button" data-h="progress">Progress</button>
+            <button class="hd" type="button" data-h="volume">Volume</button>
+            <button class="hd" type="button" data-h="skip">Skip ±10s</button>
+            <button class="hd" type="button" data-h="time">Time</button>
+            <button class="hd" type="button" data-h="title">Title</button>
+            <button class="hd" type="button" data-h="server">Server</button>
+            <button class="hd" type="button" data-h="subtitles">Subtitles</button>
+            <button class="hd" type="button" data-h="settings">Settings</button>
+            <button class="hd" type="button" data-h="pip">PiP</button>
+            <button class="hd" type="button" data-h="cast">Cast</button>
+            <button class="hd" type="button" data-h="fullscreen">Fullscreen</button>
+          </div>
+        </div>
+        <label class="tog"><span>Show title bar<small>Title top-left in windowed mode too · <code>showTitle=1</code></small></span><span class="switch"><input type="checkbox" id="t-showtitle"><i></i></span></label>
+        <label class="tog"><span>Exit button<small>An X top-right that messages your page · <code>exit=1</code></small></span><span class="switch"><input type="checkbox" id="t-exit"><i></i></span></label>
+        <p class="tune-hint">Every change rewrites the URL and snippet below and reloads the player. <b>Name, logo, accent and art</b> show on the loading card, which only appears when a start takes longer than two seconds. Hidden controls are cosmetic: keyboard shortcuts keep working.</p>
+      </div></aside>
       </div>
       <div class="stage-bar">
         <span class="live"><i></i>embed.vidrift.net</span>
@@ -396,7 +475,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
       <div class="row"><span class="n">01</span><div><h3>Adaptive HLS</h3><p>hls.js ships inside the iframe, so there is nothing to install. Quality steps down cleanly on a bad connection and back up when it recovers.</p></div></div>
       <div class="row"><span class="n">02</span><div><h3>Subtitles in 30+ languages</h3><p>Picked up automatically per title, with size, colour, background and timing controls in the player.</p></div></div>
       <div class="row"><span class="n">03</span><div><h3>Auto next episode</h3><p>An Up Next card appears 30 seconds before the end of an episode. Tell the player what comes next and it counts down.</p></div></div>
-      <div class="row"><span class="n">04</span><div><h3>Your brand, your progress</h3><p>Put your name, logo and accent on the loading card with three query parameters. Save watch progress and resume it through postMessage.</p><code>?brand= · vidrift:progress · vidrift:resume</code></div></div>
+      <div class="row"><span class="n">04</span><div><h3>Make it yours</h3><p>Hide any control. Put your name, logo and accent on it. Replace the loading art. Add a watermark. All of it is query parameters, all of it is optional, and the panel above builds the URL for you. Save watch progress and resume it through postMessage.</p><code>?hide= · ?brand= · ?brandLogo= · ?brandColor= · ?poster= · ?watermark=</code></div></div>
     </div>
   </div>
 </section>
@@ -406,7 +485,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
   <div class="shell">
     <div class="sec-head">
       <h2>Drop it in.</h2>
-      <p>One iframe is the whole integration. Progress saving, auto-next and white-label branding are in the <a class="lk" href="/docs" data-page="docs">docs</a>.</p>
+      <p>One iframe is the whole integration. Progress saving, auto-next and every customisation parameter are in the <a class="lk" href="/docs" data-page="docs">docs</a>.</p>
     </div>
     <div class="codeblock" style="max-width:880px"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
   <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.net/embed/movie/1440098"</span>
@@ -451,7 +530,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <a href="#urls">URL structure</a>
     <a href="#params">Parameters</a>
     <a href="#ids">Finding TMDB ids</a>
-    <a href="#branding">White-label</a>
+    <a href="#branding">Customise</a>
     <a href="#autoplay">Autoplay</a>
     <a href="#nextup">Auto next episode</a>
     <a href="#events">Messages</a>
@@ -490,10 +569,15 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     <table class="ref">
       <thead><tr><th>Parameter</th><th>Value</th><th>What it does</th></tr></thead>
       <tbody>
-        <tr><td><code>title</code></td><td>Text</td><td>Shown on the preroll card while a source is being found. Without it the card falls back to the TMDB id until metadata loads.</td></tr>
-        <tr><td><code>brand</code></td><td>Text, ≤ 28 chars</td><td>Your name, shown above the title on the preroll.</td></tr>
-        <tr><td><code>brandLogo</code></td><td><code>https</code> URL</td><td>Your logo, rendered 46px tall. Omit it and a monogram tile is drawn from the first letter of <code>brand</code>.</td></tr>
-        <tr><td><code>brandColor</code></td><td>6-digit hex</td><td>Accent for the wordmark rule, progress bar and glow. With or without the <code>#</code>.</td></tr>
+        <tr><td><code>title</code></td><td>Text</td><td>Shown on the loading card while a source is being found. Without it the player looks the title up itself.</td></tr>
+        <tr><td><code>brand</code></td><td>Text, ≤ 28 chars</td><td>Your name in the eyebrow above the title on the loading card.</td></tr>
+        <tr><td><code>brandLogo</code></td><td><code>https</code> URL</td><td>Your logo above the title on the loading card, up to 28px tall. PNG or SVG with a transparent background looks best.</td></tr>
+        <tr><td><code>brandColor</code></td><td>6-digit hex</td><td>Accent for the progress bar, eyebrow and switches. With or without the <code>#</code>.</td></tr>
+        <tr><td><code>poster</code></td><td><code>https</code> URL</td><td>Replaces the title's own backdrop art behind the loading card.</td></tr>
+        <tr><td><code>watermark</code></td><td><code>1</code> or <code>https</code> URL</td><td>A small logo in the top-right corner during playback, shown only while the controls are hidden. <code>1</code> reuses <code>brandLogo</code>.</td></tr>
+        <tr><td><code>showTitle</code></td><td><code>1</code></td><td>Shows the top-left title bar in windowed mode too. By default it appears only in fullscreen.</td></tr>
+        <tr><td><code>exit</code></td><td><code>1</code></td><td>Adds an Exit button (an X) top-right. Clicking it sends <code>vidrift:exit</code> to your page so you can close the player screen.</td></tr>
+        <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
         <tr><td><code>mobileSheets</code></td><td><code>true</code></td><td>On phones, delegates the Settings, Subtitles and Source panels to your own UI. See <a class="lk" href="#mobile">Mobile sheet</a>.</td></tr>
       </tbody>
     </table>
@@ -506,20 +590,38 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     </ul>
     <p>The <a class="lk" href="/#play" data-page="home">home page</a> builds the finished URL for you. Type an id into it, press Enter, and the real player loads.</p>
 
-    <h2 id="branding">White-label</h2>
-    <p>While the player finds and warms a source it shows a preroll card. Add up to three query parameters and your logo, name and accent colour replace VidRift's on every embed.</p>
+    <h2 id="branding">Customise</h2>
+    <p>The player is skinned from the URL, so there is nothing to configure anywhere else. The <a class="lk" href="/#play" data-page="home">home page</a> has a panel that builds the URL live while you watch the result.</p>
+    <h3>The loading card</h3>
+    <p>While a source is found the player shows a title card: the title's own backdrop art, dimmed, with the title bottom-left, a progress hairline and the servers a viewer can switch between. Most starts never show it. It appears only when a start takes longer than about two seconds, and the art is fetched only then, so a fast start costs nothing extra.</p>
     <ul>
-      <li><code>brand</code>: your name, plain text, max 28 characters.</li>
-      <li><code>brandLogo</code>: an <strong>https</strong> URL to a PNG, SVG or JPG. A transparent background looks best. Omit it and the player draws a monogram tile from the first letter of <code>brand</code>.</li>
-      <li><code>brandColor</code>: a 6-digit hex accent, with or without the <code>#</code>.</li>
+      <li><code>brand</code>: your name in the eyebrow above the title, max 28 characters.</li>
+      <li><code>brandLogo</code>: an <strong>https</strong> URL to a PNG, SVG or JPG, shown above the title.</li>
+      <li><code>brandColor</code>: a 6-digit hex accent for the progress bar, eyebrow and switches.</li>
+      <li><code>poster</code>: an <strong>https</strong> image URL that replaces the backdrop art.</li>
     </ul>
-    <span class="cap">Fully branded embed</span>
+    <h3>During playback</h3>
+    <ul>
+      <li><code>watermark=1</code> shows <code>brandLogo</code> as a small corner bug, top-right, only while the controls are hidden, so it never covers the top bar. Pass an <strong>https</strong> URL instead of <code>1</code> to use a different image.</li>
+      <li><code>showTitle=1</code> keeps the title bar (top-left) visible in windowed mode, not only in fullscreen.</li>
+      <li><code>exit=1</code> adds an Exit button next to the other top-right controls. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
+      <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
+    </ul>
+    <span class="cap">Fully customised embed</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/1440098
   ?title=Drawn%20Together
   &amp;brand=Acme%20Stream
   &amp;brandLogo=https://acme.com/logo.svg
-  &amp;brandColor=%2300d1b2</pre></div>
-    <p>A non-https logo, a colour that is not a hex triplet, or a logo URL that 404s all fall back silently to the default card.</p>
+  &amp;brandColor=%2300d1b2
+  &amp;watermark=1
+  &amp;exit=1
+  &amp;hide=server,cast,pip</pre></div>
+    <span class="cap">Handling Exit</span>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
+  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
+  <span class="tk-key">if</span> (e.data.type === <span class="tk-str">"vidrift:exit"</span>) <span class="tk-fn">closePlayer</span>();
+});</pre></div>
+    <p>Every value is validated. A non-https URL, a colour that is not a hex triplet, an unknown control name or an image that 404s is ignored, never an error, so a bad value can never break playback.</p>
 
     <h2 id="autoplay">Autoplay</h2>
     <p>The player always attempts autoplay, muted, as soon as a source is ready. That is what every browser allows without a user gesture, so there is nothing to enable. Sound comes on the moment the viewer interacts with the player.</p>
@@ -549,6 +651,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>vidrift:nextup</code></td><td class="dir">Player → Parent</td><td>Once, 30 seconds before the end.</td></tr>
         <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished or the viewer clicked Play Next.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
+        <tr><td><code>vidrift:exit</code></td><td class="dir">Player → Parent</td><td>The viewer clicked the Exit button (<code>?exit=1</code>). Close or navigate away from the player on your side; the player does nothing else.</td></tr>
         <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code> and <code>options</code>.</td></tr>
         <tr><td><code>vidrift:resume</code></td><td class="dir">Parent → Player</td><td>Seek to <code>currentTime</code> in seconds. Safe to send before the video is ready; it is applied once it is.</td></tr>
         <tr><td><code>vidrift:quality-preference</code></td><td class="dir">Parent → Player</td><td>Pin a rendition: <code>label</code> is <code>"1080p"</code>, <code>"720p"</code>, <code>"480p"</code>, <code>"360p"</code> or <code>"Auto"</code>.</td></tr>
@@ -606,7 +709,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
           <h4>Product</h4>
           <a href="/#play" data-page="home">Get the URL</a>
           <a href="/docs" data-page="docs">Documentation</a>
-          <a href="/docs#branding" data-page="docs">White-label</a>
+          <a href="/docs#branding" data-page="docs">Customise</a>
         </div>
         <div class="foot-col">
           <h4>Community</h4>
@@ -769,9 +872,21 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     return EMBED + '/embed/' + routeOf(cur.kind) + '/' + cur.id +
       (cur.kind === 'movie' ? '' : '/' + cur.season + '/' + cur.episode);
   }
+  // Everything the panel controls, in the order the URL prints it.
+  var tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false };
   function buildUrl() {
+    var q = [];
     // A typed-in id has no known title; the player fetches its own metadata.
-    return baseUrl() + (cur.title ? '?title=' + encodeURIComponent(cur.title) : '');
+    if (cur.title) q.push('title=' + encodeURIComponent(cur.title));
+    if (tune.brand) q.push('brand=' + encodeURIComponent(tune.brand));
+    if (tune.color) q.push('brandColor=' + tune.color);
+    if (tune.logo) q.push('brandLogo=' + encodeURIComponent(tune.logo));
+    if (tune.poster) q.push('poster=' + encodeURIComponent(tune.poster));
+    if (tune.watermark && tune.logo) q.push('watermark=1');
+    if (tune.hide.length) q.push('hide=' + tune.hide.join(','));
+    if (tune.showTitle) q.push('showTitle=1');
+    if (tune.exit) q.push('exit=1');
+    return baseUrl() + (q.length ? '?' + q.join('&') : '');
   }
   function renderOut() {
     var url = buildUrl();
@@ -934,6 +1049,56 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
   $('out-copy').addEventListener('click', function () { copy(outCode.textContent, this); });
   $('hero-copy').addEventListener('click', function () { commitId(false); copy(buildUrl(), this); });
   placeholder.addEventListener('click', loadPlayer);
+  // The Exit button in the demo does what a host page would: close the player.
+  window.addEventListener('message', function (e) {
+    if (e.origin !== EMBED || !e.data || e.data.type !== 'vidrift:exit') return;
+    frame.src = 'about:blank'; frame.style.display = 'none'; placeholder.style.display = ''; started = false;
+  });
+
+  /* ── the tune panel ──────────────────────────────────────── */
+  var tuneTimer = null;
+  function tuned(now) {
+    clearTimeout(tuneTimer);
+    // Text fields reload the player once typing pauses; clicks reload at once.
+    tuneTimer = setTimeout(function () { refresh(false); }, now ? 0 : 450);
+  }
+  function httpsOnly(v) { v = String(v || '').trim(); return /^https:\/\//i.test(v) ? v : ''; }
+  $('t-brand').addEventListener('input', function () { tune.brand = this.value.replace(/[<>&"'\\/]/g, '').slice(0, 28); tuned(); });
+  $('t-logo').addEventListener('input', function () {
+    tune.logo = httpsOnly(this.value);
+    $('t-watermark').disabled = !tune.logo;
+    if (!tune.logo) { tune.watermark = false; $('t-watermark').checked = false; }
+    tuned();
+  });
+  $('t-poster').addEventListener('input', function () { tune.poster = httpsOnly(this.value); tuned(); });
+  $('t-watermark').addEventListener('change', function () { tune.watermark = this.checked; tuned(true); });
+  $('t-showtitle').addEventListener('change', function () { tune.showTitle = this.checked; tuned(true); });
+  $('t-exit').addEventListener('change', function () { tune.exit = this.checked; tuned(true); });
+  function setColor(hex) {
+    tune.color = hex;
+    document.querySelectorAll('#t-accent .sw[data-c]').forEach(function (b) { b.classList.toggle('on', b.dataset.c === hex); });
+    if (hex) $('t-color').value = '#' + hex;
+    tuned(true);
+  }
+  document.querySelectorAll('#t-accent .sw[data-c]').forEach(function (b) {
+    b.addEventListener('click', function () { setColor(b.dataset.c); });
+  });
+  $('t-color').addEventListener('input', function () { setColor(this.value.replace('#', '').toLowerCase()); });
+  document.querySelectorAll('#t-hide .hd').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.dataset.h, i = tune.hide.indexOf(k);
+      if (i < 0) tune.hide.push(k); else tune.hide.splice(i, 1);
+      b.classList.toggle('on', i < 0);
+      tuned(true);
+    });
+  });
+  $('tune-reset').addEventListener('click', function () {
+    tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false };
+    $('t-brand').value = $('t-logo').value = $('t-poster').value = '';
+    $('t-watermark').checked = $('t-showtitle').checked = $('t-exit').checked = false; $('t-watermark').disabled = true;
+    document.querySelectorAll('#t-hide .hd').forEach(function (b) { b.classList.remove('on'); });
+    setColor('');
+  });
 
   setKind('movie');
   refresh(false);
