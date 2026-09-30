@@ -442,6 +442,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
             <button class="hd" type="button" data-h="time">Time</button>
             <button class="hd" type="button" data-h="title">Title</button>
             <button class="hd" type="button" data-h="server">Server</button>
+            <button class="hd" type="button" data-h="next">Next episode</button>
             <button class="hd" type="button" data-h="subtitles">Subtitles</button>
             <button class="hd" type="button" data-h="settings">Settings</button>
             <button class="hd" type="button" data-h="pip">PiP</button>
@@ -594,7 +595,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>font</code></td><td>Google Fonts family</td><td>Swaps the player's typeface, e.g. <code>font=Inter</code> or <code>font=Bebas%20Neue</code>. Letters, digits and spaces only.</td></tr>
         <tr><td><code>muted</code></td><td><code>1</code></td><td>Start muted for this load. Sound comes on when the viewer taps the speaker.</td></tr>
         <tr><td><code>autoplay</code></td><td><code>0</code></td><td>Do not autoplay. The player loads the source and waits for a click. Note that <em>forcing</em> autoplay with sound is not possible in any browser; the default is already the most that browsers allow.</td></tr>
-        <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
+        <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
         <tr><td><code>mobileSheets</code></td><td><code>true</code></td><td>On phones, delegates the Settings, Subtitles and Source panels to your own UI. See <a class="lk" href="#mobile">Mobile sheet</a>.</td></tr>
       </tbody>
     </table>
@@ -629,7 +630,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
       <li><code>watermark=1</code> shows <code>brandLogo</code> as a small corner bug, top-right, only while the controls are hidden, so it never covers the top bar. Pass an <strong>https</strong> URL instead of <code>1</code> to use a different image.</li>
       <li><code>showTitle=1</code> keeps the title bar (top-left) visible in windowed mode, not only in fullscreen.</li>
       <li><code>exit=1</code> adds an Exit button next to the other top-right controls. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
-      <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
+      <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
     </ul>
     <span class="cap">Fully customised embed</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/1440098
@@ -652,6 +653,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
 
     <h2 id="nextup">Auto next episode</h2>
     <p>For TV and anime the player shows a five-second Up Next card 30 seconds before the end of an episode. It needs your page to say what the next episode is, and to swap the URL when the viewer confirms. Skip step one and the card never appears.</p>
+    <p>The same message also puts a Next episode button in the control bar, beside the Server button, for the whole episode. Clicking it sends <code>vidrift:nextup-play</code> straight away. Send <code>next: null</code> on the last episode and the button goes away; <code>hide=next</code> removes it for good.</p>
     <span class="cap">1 · Parent → Player, once the iframe has loaded</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>iframe.contentWindow.<span class="tk-fn">postMessage</span>({
   type: <span class="tk-str">"vidrift:nextup-info"</span>,
@@ -673,7 +675,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
       <tbody>
         <tr><td><code>vidrift:progress</code></td><td class="dir">Player → Parent</td><td>Every 5 seconds while playing, after the first 5 seconds. Adds <code>currentTime</code> and <code>duration</code>.</td></tr>
         <tr><td><code>vidrift:nextup</code></td><td class="dir">Player → Parent</td><td>Once, 30 seconds before the end.</td></tr>
-        <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished or the viewer clicked Play Next.</td></tr>
+        <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
         <tr><td><code>vidrift:exit</code></td><td class="dir">Player → Parent</td><td>The viewer clicked the Exit button (<code>?exit=1</code>). Close or navigate away from the player on your side; the player does nothing else.</td></tr>
         <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code> and <code>options</code>.</td></tr>
@@ -1078,9 +1080,28 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
   $('out-copy').addEventListener('click', function () { copy(outCode.textContent, this); });
   $('hero-copy').addEventListener('click', function () { commitId(false); copy(buildUrl(), this); });
   placeholder.addEventListener('click', loadPlayer);
+  // What a host page does for TV: name the next episode once the player has
+  // loaded (that is what puts the Next episode button in the bar), then switch
+  // to it when the player asks.
+  function nextEp() {
+    if (cur.kind === 'movie') return null;
+    var list = $('season')._list || [], i = list.map(function (s) { return s.season; }).indexOf(cur.season);
+    if (i < 0) return null;
+    if (cur.episode < list[i].episodes) return { season: cur.season, episode: cur.episode + 1 };
+    return list[i + 1] ? { season: list[i + 1].season, episode: 1 } : null;
+  }
+  frame.addEventListener('load', function () {
+    if (started && cur.kind !== 'movie') frame.contentWindow.postMessage({ type: 'vidrift:nextup-info', next: nextEp() }, EMBED);
+  });
   // The Exit button in the demo does what a host page would: close the player.
   window.addEventListener('message', function (e) {
-    if (e.origin !== EMBED || !e.data || e.data.type !== 'vidrift:exit') return;
+    if (e.origin !== EMBED || !e.data) return;
+    if (e.data.type === 'vidrift:nextup-play') {
+      var n = nextEp(); if (!n) return;
+      cur.season = n.season; cur.episode = n.episode;
+      fillEpisodes($('season')._list); refresh(true); return;
+    }
+    if (e.data.type !== 'vidrift:exit') return;
     frame.src = 'about:blank'; frame.style.display = 'none'; placeholder.style.display = ''; started = false;
   });
 
