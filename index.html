@@ -445,6 +445,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
             <button class="hd" type="button" data-h="next">Next episode</button>
             <button class="hd" type="button" data-h="subtitles">Subtitles</button>
             <button class="hd" type="button" data-h="settings">Settings</button>
+            <button class="hd" type="button" data-h="lock">Lock</button>
             <button class="hd" type="button" data-h="pip">PiP</button>
             <button class="hd" type="button" data-h="cast">Cast</button>
             <button class="hd" type="button" data-h="fullscreen">Fullscreen</button>
@@ -488,7 +489,8 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
       <div class="row"><span class="n">01</span><div><h3>Adaptive HLS</h3><p>hls.js ships inside the iframe, so there is nothing to install. Quality steps down cleanly on a bad connection and back up when it recovers.</p></div></div>
       <div class="row"><span class="n">02</span><div><h3>Subtitles in 30+ languages</h3><p>Picked up automatically per title, with size, colour, background and timing controls in the player.</p></div></div>
       <div class="row"><span class="n">03</span><div><h3>Auto next episode</h3><p>An Up Next card appears 30 seconds before the end of an episode. Tell the player what comes next and it counts down.</p></div></div>
-      <div class="row"><span class="n">04</span><div><h3>Make it yours</h3><p>Hide any control. Put your name, logo and accent on it. Replace the loading art. Add a watermark. All of it is query parameters, all of it is optional, and the panel above builds the URL for you. Save watch progress and resume it through postMessage.</p><code>?hide= · ?brand= · ?brandLogo= · ?brandColor= · ?poster= · ?watermark=</code></div></div>
+      <div class="row"><span class="n">04</span><div><h3>Screen lock and picture size</h3><p>A lock button keeps stray touches and mouse nudges from waking the controls. Fit, Fill or Stretch the picture to the screen from the settings menu, and the choice sticks.</p></div></div>
+      <div class="row"><span class="n">05</span><div><h3>Make it yours</h3><p>Hide any control. Put your name, logo and accent on it. Replace the loading art. Add a watermark. All of it is query parameters, all of it is optional, and the panel above builds the URL for you. Save watch progress and resume it through postMessage.</p><code>?hide= · ?brand= · ?brandLogo= · ?brandColor= · ?poster= · ?watermark=</code></div></div>
     </div>
   </div>
 </section>
@@ -595,7 +597,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>font</code></td><td>Google Fonts family</td><td>Swaps the player's typeface, e.g. <code>font=Inter</code> or <code>font=Bebas%20Neue</code>. Letters, digits and spaces only.</td></tr>
         <tr><td><code>muted</code></td><td><code>1</code></td><td>Start muted for this load. Sound comes on when the viewer taps the speaker.</td></tr>
         <tr><td><code>autoplay</code></td><td><code>0</code></td><td>Do not autoplay. The player loads the source and waits for a click. Note that <em>forcing</em> autoplay with sound is not possible in any browser; the default is already the most that browsers allow.</td></tr>
-        <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
+        <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
         <tr><td><code>mobileSheets</code></td><td><code>true</code></td><td>On phones, delegates the Settings, Subtitles and Source panels to your own UI. See <a class="lk" href="#mobile">Mobile sheet</a>.</td></tr>
       </tbody>
     </table>
@@ -630,7 +632,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
       <li><code>watermark=1</code> shows <code>brandLogo</code> as a small corner bug, top-right, only while the controls are hidden, so it never covers the top bar. Pass an <strong>https</strong> URL instead of <code>1</code> to use a different image.</li>
       <li><code>showTitle=1</code> keeps the title bar (top-left) visible in windowed mode, not only in fullscreen.</li>
       <li><code>exit=1</code> adds an Exit button next to the other top-right controls. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
-      <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
+      <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
     </ul>
     <span class="cap">Fully customised embed</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/1440098
@@ -647,6 +649,12 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
   <span class="tk-key">if</span> (e.data.type === <span class="tk-str">"vidrift:exit"</span>) <span class="tk-fn">closePlayer</span>();
 });</pre></div>
     <p>Every value is validated. A non-https URL, a colour that is not a hex triplet, an unknown control name or an image that 404s is ignored, never an error, so a bad value can never break playback.</p>
+    <h3>What viewers control</h3>
+    <ul>
+      <li><strong>Lock.</strong> A padlock sits with the top-right controls. Locked, the controls stay hidden and a click or tap does nothing except bring up an Unlock button; keyboard shortcuts, Skip intro and Up Next keep working. It resets on every load. <code>hide=lock</code> removes it.</li>
+      <li><strong>Video size.</strong> Fit, Fill and Stretch are in the Settings menu. Fit shows the whole picture, Fill crops it to cover the player, Stretch distorts it to fill. The choice is the viewer's and is remembered in their browser, so there is no parameter for it.</li>
+      <li><strong>Touch.</strong> On a phone the first tap shows the controls and the centre button plays or pauses. A double tap on either side seeks 10 seconds.</li>
+    </ul>
 
     <h2 id="autoplay">Autoplay</h2>
     <p>The player always attempts autoplay, muted, as soon as a source is ready. That is what every browser allows without a user gesture, so there is nothing to enable. Sound comes on the moment the viewer interacts with the player.</p>
@@ -678,7 +686,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
         <tr><td><code>vidrift:exit</code></td><td class="dir">Player → Parent</td><td>The viewer clicked the Exit button (<code>?exit=1</code>). Close or navigate away from the player on your side; the player does nothing else.</td></tr>
-        <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code> and <code>options</code>.</td></tr>
+        <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code>, <code>options</code> and <code>current</code>.</td></tr>
         <tr><td><code>vidrift:resume</code></td><td class="dir">Parent → Player</td><td>Seek to <code>currentTime</code> in seconds. Safe to send before the video is ready; it is applied once it is.</td></tr>
         <tr><td><code>vidrift:quality-preference</code></td><td class="dir">Parent → Player</td><td>Pin a rendition: <code>label</code> is <code>"1080p"</code>, <code>"720p"</code>, <code>"480p"</code>, <code>"360p"</code> or <code>"Auto"</code>.</td></tr>
         <tr><td><code>vidrift:nextup-info</code></td><td class="dir">Parent → Player</td><td>Enable the Up Next card with <code>next: { season, episode }</code>. Send <code>next: null</code> to hide it.</td></tr>
@@ -701,7 +709,9 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
   <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
   <span class="tk-key">if</span> (e.data.type !== <span class="tk-str">"vidrift:mobile-panel"</span>) <span class="tk-key">return</span>;
   <span class="tk-com">// e.data.panel: "settings" | "subtitles" | "source"</span>
-  <span class="tk-com">// e.data.options: [{ option, value, label, group }]  — "settings" mixes quality and speed</span>
+  <span class="tk-com">// e.data.options: [{ option, value, label, group, desc? }]</span>
+  <span class="tk-com">//   "settings" carries quality, audio, speed and fit (video size)</span>
+  <span class="tk-com">// e.data.current: selected now, e.g. { quality: "auto", fit: "contain" }</span>
   <span class="tk-key">const</span> chosen = <span class="tk-key">await</span> <span class="tk-fn">showYourSheet</span>(e.data.options);
   iframe.contentWindow.<span class="tk-fn">postMessage</span>({
     type: <span class="tk-str">"vidrift:mobile-option"</span>,
@@ -709,11 +719,16 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     value: chosen.value
   }, <span class="tk-str">"https://embed.vidrift.net"</span>);
 });</pre></div>
+    <ul>
+      <li>The <code>settings</code> panel always has a <code>quality</code> group. When the stream offers nothing to choose it is a single <code>Auto</code> entry, and its <code>desc</code> says why; show <code>desc</code> under the label when it is present.</li>
+      <li><code>fit</code> takes <code>contain</code> (Fit), <code>cover</code> (Fill) or <code>fill</code> (Stretch).</li>
+      <li>In fullscreen the player opens its own sheet instead of asking for yours: only the player is on screen there, so your sheet would open behind it.</li>
+    </ul>
 
     <h2 id="notes">Notes &amp; limits</h2>
     <ul>
       <li>hls.js ships inside every embed page. There are no dependencies to add on your side.</li>
-      <li>Mobile-responsive, with iOS Safari fullscreen via <code>webkitEnterFullscreen</code>.</li>
+      <li>Mobile-responsive, with iOS Safari fullscreen via <code>webkitEnterFullscreen</code>. That is Safari's own player, so on iPhone the player's menus are available outside fullscreen only.</li>
       <li>Embeds are rate-limited per client. Normal traffic never touches the limit; scripted bulk fetching does.</li>
       <li>Public embeds carry a single ad. That is what pays for the bandwidth.</li>
       <li>Metadata and artwork come from TMDB. VidRift is not endorsed or certified by TMDB.</li>
