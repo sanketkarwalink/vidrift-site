@@ -591,7 +591,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>poster</code></td><td><code>https</code> URL</td><td>Replaces the title's own backdrop art behind the loading card.</td></tr>
         <tr><td><code>watermark</code></td><td><code>1</code> or <code>https</code> URL</td><td>A small logo in the top-right corner during playback, shown only while the controls are hidden. <code>1</code> reuses <code>brandLogo</code>.</td></tr>
         <tr><td><code>showTitle</code></td><td><code>1</code></td><td>Shows the top-left title bar in windowed mode too. By default it appears only in fullscreen.</td></tr>
-        <tr><td><code>exit</code></td><td><code>1</code></td><td>Adds an Exit button (an X) top-right. Clicking it sends <code>vidrift:exit</code> to your page so you can close the player screen.</td></tr>
+        <tr><td><code>exit</code></td><td><code>1</code></td><td>Adds an Exit button (an X) top-right, also on the "Not out yet" and "won't play" screens. Clicking it sends <code>vidrift:exit</code> to your page so you can close the player screen.</td></tr>
         <tr><td><code>uiScale</code></td><td>0.5 – 2.5</td><td>Scales every control, icon and label. <code>1.5</code> for a TV screen, <code>0.85</code> for a compact box.</td></tr>
         <tr><td><code>controlBg</code></td><td><code>solid</code></td><td>A flat dark strip behind the controls instead of the gradient, for bright video.</td></tr>
         <tr><td><code>font</code></td><td>Google Fonts family</td><td>Swaps the player's typeface, e.g. <code>font=Inter</code> or <code>font=Bebas%20Neue</code>. Letters, digits and spaces only.</td></tr>
@@ -631,7 +631,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     <ul>
       <li><code>watermark=1</code> shows <code>brandLogo</code> as a small corner bug, top-right, only while the controls are hidden, so it never covers the top bar. Pass an <strong>https</strong> URL instead of <code>1</code> to use a different image.</li>
       <li><code>showTitle=1</code> keeps the title bar (top-left) visible in windowed mode, not only in fullscreen.</li>
-      <li><code>exit=1</code> adds an Exit button next to the other top-right controls. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
+      <li><code>exit=1</code> adds an Exit button next to the other top-right controls, and in the top-right corner of the "Not out yet" and "This one won't play right now" screens. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
       <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
     </ul>
     <span class="cap">Fully customised embed</span>
@@ -682,6 +682,8 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
       <thead><tr><th>Type</th><th>Direction</th><th>When</th></tr></thead>
       <tbody>
         <tr><td><code>vidrift:progress</code></td><td class="dir">Player → Parent</td><td>Every 5 seconds while playing, after the first 5 seconds. Adds <code>currentTime</code> and <code>duration</code>.</td></tr>
+        <tr><td><code>vidrift:paused</code></td><td class="dir">Player → Parent</td><td>Playback paused, by the viewer or at the end. Adds <code>currentTime</code>. Use it to show your own UI over the player, such as a nav bar.</td></tr>
+        <tr><td><code>vidrift:unpaused</code></td><td class="dir">Player → Parent</td><td>Playback started or resumed. Adds <code>currentTime</code>. Hide that UI again.</td></tr>
         <tr><td><code>vidrift:nextup</code></td><td class="dir">Player → Parent</td><td>Once, 30 seconds before the end.</td></tr>
         <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
