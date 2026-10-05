@@ -177,8 +177,6 @@ h1 em,h2 em{font-style:normal;color:var(--brand)}
 .placeholder:hover .ph-bg{transform:scale(1.1)}
 .placeholder::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.55) 100%)}
 .ph-in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px}
-.ph-poster{width:clamp(84px,12vw,132px);aspect-ratio:2/3;object-fit:cover;border-radius:5px;box-shadow:0 30px 60px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.08)}
-.ph-poster[hidden]{display:none}
 .play-ring{
   width:64px;height:64px;border-radius:50%;background:var(--paper);color:var(--bg);display:grid;place-items:center;
   box-shadow:0 0 0 0 rgba(242,241,237,.35);animation:ring 2.6s var(--ease) infinite;transition:transform .4s var(--spring);
@@ -411,7 +409,6 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
         <button class="placeholder" id="placeholder" type="button" aria-label="Play in the real player">
           <img class="ph-bg" id="ph-bg" alt="" src="https://image.tmdb.org/t/p/w342/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg">
           <span class="ph-in">
-            <img class="ph-poster" id="ph-poster" alt="" src="https://image.tmdb.org/t/p/w342/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg">
             <span class="play-ring"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7 4 20 12 7 20"/></svg></span>
             <span class="ph-text">Play in the real player</span>
           </span>
@@ -904,7 +901,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
   var cur = { kind: 'movie', id: 1440098, title: 'Drawn Together', poster: '/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg', season: 1, episode: 1 };
   var started = false;
 
-  var frame = $('frame'), placeholder = $('placeholder'), phPoster = $('ph-poster'), phBg = $('ph-bg');
+  var frame = $('frame'), placeholder = $('placeholder'), phBg = $('ph-bg');
   var outCode = $('out-code'), outMode = 'url';
   var uId = $('u-id');
 
@@ -973,8 +970,8 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     var title = cur.title || 'TMDB ' + cur.id;
     $('now-title').textContent = title;
     $('now-meta').textContent = kindLabel + (cur.kind === 'movie' ? '' : ' · S' + cur.season + 'E' + cur.episode) + ' · TMDB ' + cur.id;
-    if (cur.poster) { phPoster.src = phBg.src = IMG + 'w342' + cur.poster; phPoster.hidden = false; phBg.style.opacity = ''; }
-    else { phPoster.hidden = true; phBg.style.opacity = '0'; }
+    if (cur.poster) { phBg.src = IMG + 'w342' + cur.poster; phBg.style.opacity = ''; }
+    else phBg.style.opacity = '0';
   }
 
   function loadPlayer() {
