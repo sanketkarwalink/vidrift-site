@@ -681,6 +681,8 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>vidrift:progress</code></td><td class="dir">Player → Parent</td><td>Every 5 seconds while playing, after the first 5 seconds. Adds <code>currentTime</code> and <code>duration</code>.</td></tr>
         <tr><td><code>vidrift:paused</code></td><td class="dir">Player → Parent</td><td>Playback paused, by the viewer or at the end. Adds <code>currentTime</code>. Use it to show your own UI over the player, such as a nav bar.</td></tr>
         <tr><td><code>vidrift:unpaused</code></td><td class="dir">Player → Parent</td><td>Playback started or resumed. Adds <code>currentTime</code>. Hide that UI again.</td></tr>
+        <tr><td><code>vidrift:ui-visible</code></td><td class="dir">Player → Parent</td><td>The player's own controls (top and bottom bars) came on screen: mouse move, tap, or pause. Show an overlay of yours at the same moment and it reads as part of the player.</td></tr>
+        <tr><td><code>vidrift:ui-hidden</code></td><td class="dir">Player → Parent</td><td>The controls auto-hid, the pointer left while playing, or the player was locked. Hide that overlay again. Sent once per change, plus once on load for the initial state.</td></tr>
         <tr><td><code>vidrift:nextup</code></td><td class="dir">Player → Parent</td><td>Once, 30 seconds before the end.</td></tr>
         <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
