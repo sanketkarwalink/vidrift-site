@@ -485,9 +485,11 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <div class="rows">
       <div class="row"><span class="n">01</span><div><h3>Adaptive HLS</h3><p>hls.js ships inside the iframe, so there is nothing to install. Quality steps down cleanly on a bad connection and back up when it recovers.</p></div></div>
       <div class="row"><span class="n">02</span><div><h3>Subtitles in 30+ languages</h3><p>Picked up automatically per title, with size, colour, background and timing controls in the player.</p></div></div>
-      <div class="row"><span class="n">03</span><div><h3>Auto next episode</h3><p>An Up Next card appears 30 seconds before the end of an episode. Tell the player what comes next and it counts down.</p></div></div>
+      <div class="row"><span class="n">03</span><div><h3>Auto next episode</h3><p>An Up Next card appears 30 seconds before the end of an episode and counts down to the next one. The player works out what comes next by itself; tell it only if your page wants to drive episodes.</p></div></div>
       <div class="row"><span class="n">04</span><div><h3>Screen lock and picture size</h3><p>A lock button keeps stray touches and mouse nudges from waking the controls. Fit, Fill or Stretch the picture to the screen from the settings menu, and the choice sticks.</p></div></div>
-      <div class="row"><span class="n">05</span><div><h3>Make it yours</h3><p>Hide any control. Put your name, logo and accent on it. Replace the loading art. Add a watermark. All of it is query parameters, all of it is optional, and the panel above builds the URL for you. Save watch progress and resume it through postMessage.</p><code>?hide= · ?brand= · ?brandLogo= · ?brandColor= · ?poster= · ?watermark=</code></div></div>
+      <div class="row"><span class="n">05</span><div><h3>Episodes in the player</h3><p>On TV and anime an Episodes button opens a season-by-season list in the control bar, so a viewer can jump anywhere without leaving the player. Your page does not have to build one.</p></div></div>
+      <div class="row"><span class="n">06</span><div><h3>Pause card</h3><p>Three seconds into a pause, the title, year, rating, genres and overview fade in over the frame. Resume and it is gone.</p></div></div>
+      <div class="row"><span class="n">07</span><div><h3>Make it yours</h3><p>Hide any control. Put your name, logo and accent on it. Replace the loading art. Add a watermark. All of it is query parameters, all of it is optional, and the panel above builds the URL for you. Save watch progress and resume it through postMessage.</p><code>?hide= · ?brand= · ?brandLogo= · ?brandColor= · ?poster= · ?watermark=</code></div></div>
     </div>
   </div>
 </section>
@@ -544,6 +546,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <a href="#ids">Finding TMDB ids</a>
     <a href="#branding">Customise</a>
     <a href="#autoplay">Autoplay</a>
+    <a href="#episodes">Episodes</a>
     <a href="#nextup">Auto next episode</a>
     <a href="#events">Messages</a>
     <a href="#mobile">Mobile sheet</a>
@@ -594,7 +597,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>font</code></td><td>Google Fonts family</td><td>Swaps the player's typeface, e.g. <code>font=Inter</code> or <code>font=Bebas%20Neue</code>. Letters, digits and spaces only.</td></tr>
         <tr><td><code>muted</code></td><td><code>1</code></td><td>Start muted for this load. Sound comes on when the viewer taps the speaker.</td></tr>
         <tr><td><code>autoplay</code></td><td><code>0</code></td><td>Do not autoplay. The player loads the source and waits for a click. Note that <em>forcing</em> autoplay with sound is not possible in any browser; the default is already the most that browsers allow.</td></tr>
-        <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
+        <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>episodes</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
         <tr><td><code>mobileSheets</code></td><td><code>true</code></td><td>On phones, delegates the Settings, Subtitles and Source panels to your own UI. See <a class="lk" href="#mobile">Mobile sheet</a>.</td></tr>
       </tbody>
     </table>
@@ -629,7 +632,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
       <li><code>watermark=1</code> shows <code>brandLogo</code> as a small corner bug, top-right, only while the controls are hidden, so it never covers the top bar. Pass an <strong>https</strong> URL instead of <code>1</code> to use a different image.</li>
       <li><code>showTitle=1</code> keeps the title bar (top-left) visible in windowed mode, not only in fullscreen.</li>
       <li><code>exit=1</code> adds an Exit button next to the other top-right controls, and in the top-right corner of the "Not out yet" and "This one won't play right now" screens. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
-      <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
+      <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>episodes</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
     </ul>
     <span class="cap">Fully customised embed</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/1440098
@@ -651,15 +654,25 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
       <li><strong>Lock.</strong> A padlock sits with the top-right controls. Locked, the controls stay hidden and a click or tap does nothing except bring up an Unlock button; keyboard shortcuts, Skip intro and Up Next keep working. It resets on every load. <code>hide=lock</code> removes it.</li>
       <li><strong>Video size.</strong> Fit, Fill and Stretch are in the Settings menu. Fit shows the whole picture, Fill crops it to cover the player, Stretch distorts it to fill. The choice is the viewer's and is remembered in their browser, so there is no parameter for it.</li>
       <li><strong>Touch.</strong> On a phone the first tap shows the controls and the centre button plays or pauses. A double tap on either side seeks 10 seconds.</li>
+      <li><strong>Pause card.</strong> Three seconds into a pause, the title, year, TMDB rating, genres and overview fade in bottom-left over the frame. It never covers the controls, and it goes the moment playback resumes or the viewer seeks. There is no parameter for it.</li>
     </ul>
 
     <h2 id="autoplay">Autoplay</h2>
     <p>The player always attempts autoplay, muted, as soon as a source is ready. That is what every browser allows without a user gesture, so there is nothing to enable. Sound comes on the moment the viewer interacts with the player.</p>
 
+    <h2 id="episodes">Episodes</h2>
+    <p>For TV and anime the control bar has an Episodes button, beside Next. It opens the show's seasons as tabs and the chosen season's episodes as a list, with the one playing marked. A pick swaps this iframe to the new episode and keeps every parameter you set, so there is nothing to wire up. Just before it swaps, the player sends <code>vidrift:episode</code> with the new <code>season</code> and <code>episode</code>, in case your page shows the current episode somewhere and wants to stay in step.</p>
+    <p>If your page has an episode list of its own and wants to stay in charge, send <code>vidrift:nextup-info</code> (next section) once the iframe has loaded: the in-player list and its Next button step aside and the player follows your page instead. <code>hide=episodes</code> removes the button outright.</p>
+    <span class="cap">Keeping your URL in step</span>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
+  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
+  <span class="tk-key">if</span> (e.data.type === <span class="tk-str">"vidrift:episode"</span>) history.<span class="tk-fn">replaceState</span>(<span class="tk-key">null</span>, <span class="tk-str">""</span>, <span class="tk-str">`/tv/${e.data.tmdbId}/${e.data.season}/${e.data.episode}`</span>);
+});</pre></div>
+
     <h2 id="nextup">Auto next episode</h2>
-    <p>For TV and anime the player shows a five-second Up Next card 30 seconds before the end of an episode. It needs your page to say what the next episode is, and to swap the URL when the viewer confirms. Skip step one and the card never appears.</p>
-    <p>The same message also puts a Next episode button in the control bar, beside the Server button, for the whole episode. Clicking it sends <code>vidrift:nextup-play</code> straight away. Send <code>next: null</code> on the last episode and the button goes away; <code>hide=next</code> removes it for good.</p>
-    <span class="cap">1 · Parent → Player, once the iframe has loaded</span>
+    <p>For TV and anime the player shows a five-second Up Next card 30 seconds before the end of an episode, then plays the next one in the same iframe. It knows the next episode from the same season list the Episodes button uses, so by default there is nothing to do.</p>
+    <p>A page that drives episodes itself takes over with the two messages below. Once your page has sent <code>vidrift:nextup-info</code>, the card and the Next episode button in the control bar follow your page: the countdown or a click sends <code>vidrift:nextup-play</code> and your page swaps the URL. Send <code>next: null</code> on the last episode and the button goes away; <code>hide=next</code> removes it for good.</p>
+    <span class="cap">1 · Parent → Player, once the iframe has loaded (only if your page drives episodes)</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>iframe.contentWindow.<span class="tk-fn">postMessage</span>({
   type: <span class="tk-str">"vidrift:nextup-info"</span>,
   next: { season: <span class="tk-key">1</span>, episode: <span class="tk-key">2</span> }
@@ -684,13 +697,14 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>vidrift:ui-visible</code></td><td class="dir">Player → Parent</td><td>The player's own controls (top and bottom bars) came on screen: mouse move, tap, or pause. Show an overlay of yours at the same moment and it reads as part of the player.</td></tr>
         <tr><td><code>vidrift:ui-hidden</code></td><td class="dir">Player → Parent</td><td>The controls auto-hid, the pointer left while playing, or the player was locked. Hide that overlay again. Sent once per change, plus once on load for the initial state.</td></tr>
         <tr><td><code>vidrift:nextup</code></td><td class="dir">Player → Parent</td><td>Once, 30 seconds before the end.</td></tr>
-        <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button.</td></tr>
+        <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button. Only sent once your page has sent <code>vidrift:nextup-info</code>; otherwise the player moves on by itself.</td></tr>
+        <tr><td><code>vidrift:episode</code></td><td class="dir">Player → Parent</td><td>The viewer picked an episode in the player, or Up Next moved on by itself. Carries the new <code>season</code> and <code>episode</code>; the iframe swaps right after.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
         <tr><td><code>vidrift:exit</code></td><td class="dir">Player → Parent</td><td>The viewer clicked the Exit button (<code>?exit=1</code>). Close or navigate away from the player on your side; the player does nothing else.</td></tr>
         <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code>, <code>options</code> and <code>current</code>.</td></tr>
         <tr><td><code>vidrift:resume</code></td><td class="dir">Parent → Player</td><td>Seek to <code>currentTime</code> in seconds. Safe to send before the video is ready; it is applied once it is.</td></tr>
         <tr><td><code>vidrift:quality-preference</code></td><td class="dir">Parent → Player</td><td>Pin a rendition: <code>label</code> is <code>"1080p"</code>, <code>"720p"</code>, <code>"480p"</code>, <code>"360p"</code> or <code>"Auto"</code>.</td></tr>
-        <tr><td><code>vidrift:nextup-info</code></td><td class="dir">Parent → Player</td><td>Enable the Up Next card with <code>next: { season, episode }</code>. Send <code>next: null</code> to hide it.</td></tr>
+        <tr><td><code>vidrift:nextup-info</code></td><td class="dir">Parent → Player</td><td>Take over episodes: the Up Next card and Next button use your <code>next: { season, episode }</code>, and the in-player Episodes list steps aside. Send <code>next: null</code> on the last episode.</td></tr>
         <tr><td><code>vidrift:mobile-option</code></td><td class="dir">Parent → Player</td><td>Reply to a <code>mobile-panel</code> message with the chosen <code>option</code> and <code>value</code>.</td></tr>
       </tbody>
     </table>
