@@ -69,7 +69,8 @@ h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:-.025em;line-
 .pill a{display:flex;align-items:center;padding:0 12px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:color .15s}
 .pill a:hover,.pill a.active{color:var(--ink)}
 .indicator{position:absolute;bottom:-1px;left:0;height:1px;background:var(--paper);opacity:0;transition:transform .3s,width .3s,opacity .2s}
-.nav-discord{padding:0 0 0 12px !important}
+.nav-discord{gap:7px;padding-right:0 !important}
+.nav-tag{margin-left:14px;padding-left:14px;border-left:1px solid var(--hair);font-size:13px;color:var(--ink-3);white-space:nowrap}
 
 /* pages (SPA routes) */
 .page{display:none}
@@ -83,6 +84,8 @@ h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:-.025em;line-
 
 /* the URL builder: type, picks, the URL itself, the real player, the snippet, the options */
 .build{margin-top:40px;display:grid;gap:10px}
+.build-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:2px;border-bottom:1px solid var(--hair)}
+.build-head p{font-size:13.5px;color:var(--ink-3)}
 .kinds{display:flex;align-items:center;gap:24px;flex-wrap:wrap;min-height:30px}
 .chips{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:var(--r)}
 .chip{height:28px;padding:0 12px;border-radius:4px;font-size:12.5px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
@@ -251,6 +254,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
   .toc a{border:1px solid var(--hair);border-radius:4px;padding:5px 9px;font-size:13px}
   .toc a.on{border-color:var(--paper)}
 }
+@media(max-width:900px){.nav-tag{display:none}}
 @media(max-width:640px){
   :root{--shell:min(1120px,100% - 32px)}
   .hero{padding:40px 0 32px}
@@ -272,13 +276,14 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 <div class="nav-wrap" id="nav">
   <div class="shell nav-in">
     <a href="/" class="logo" data-nav="home">vidrift<em>.</em></a>
+    <span class="nav-tag">Free video embed for movies, TV and anime</span>
     <div class="nav-spacer"></div>
     <nav class="pill" id="pill">
       <div class="indicator" id="indicator"></div>
       <a href="/" data-page="home" class="active">Home</a>
       <a href="/docs" data-page="docs">Docs</a>
-      <a class="nav-discord" href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer" aria-label="Discord">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.054C1.483 8.073.666 11.678.998 15.226a.074.074 0 0 0 .028.057 19.926 19.926 0 0 0 5.996 3.03.077.077 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.37 13.37 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .027-.058c.39-4.009-.654-7.583-2.677-10.802a.06.06 0 0 0-.034-.055zM8.02 12.882c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.953 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952zm7.956 0c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.954 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952z"/></svg>
+      <a class="nav-discord" href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.054C1.483 8.073.666 11.678.998 15.226a.074.074 0 0 0 .028.057 19.926 19.926 0 0 0 5.996 3.03.077.077 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.37 13.37 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .027-.058c.39-4.009-.654-7.583-2.677-10.802a.06.06 0 0 0-.034-.055zM8.02 12.882c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.953 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952zm7.956 0c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.954 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952z"/></svg>Discord
       </a>
     </nav>
   </div>
@@ -291,9 +296,10 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
   <div class="shell">
     <p class="lab">Free embed API · no key · no signup</p>
     <h1>Movies, TV and anime, in one iframe.</h1>
-    <p class="lede">Build the URL from a TMDB or AniList id and drop it in. Adaptive HLS, subtitles, auto next and an episode list are already in the player. The look is yours from the query string.</p>
+    <p class="lede">Put one iframe on your site and it plays any movie, series or anime episode by TMDB or AniList id. Adaptive HLS, subtitles, auto next and an episode list are already in the player. The look is yours from the query string.</p>
 
     <div class="build">
+      <div class="build-head"><span class="lab">Build your URL</span><p>Pick a title or type a TMDB id, set the options, copy the snippet. The player below is the real one, as your visitors will see it.</p></div>
       <div class="kinds">
         <div class="chips" role="tablist" aria-label="Type">
           <button class="chip on" data-kind="movie" type="button">Movie</button>
