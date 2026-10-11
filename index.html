@@ -507,7 +507,8 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span>
 <span class="tk-tag">&lt;/div&gt;</span>
 
-<span class="tk-com">&lt;!-- TV and anime: /embed/tv/{id}/{season}/{episode} --&gt;</span></pre></div>
+<span class="tk-com">&lt;!-- TV and anime: /embed/tv/{id}/{season}/{episode} --&gt;</span>
+<span class="tk-com">&lt;!-- Anime by AniList id: /embed/anilist/{id}/{episode} --&gt;</span></pre></div>
   </div>
 </section>
 
@@ -569,15 +570,19 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <div class="note"><p>Keep <code>referrerpolicy</code> at its default or <code>strict-origin-when-cross-origin</code>. Do not add a <code>sandbox</code> attribute: a sandboxed iframe cannot play. Fetching an <code>/embed/*</code> URL with a script instead of framing it returns 403.</p></div>
 
     <h2 id="urls">URL structure</h2>
-    <p>Two shapes. Anime is TV content under the hood, so it uses the TV shape with the show's TMDB id.</p>
+    <p>Three shapes. Anime is TV content under the hood, so it takes the TV shape with the show's TMDB id, or its AniList id if that is what your site has.</p>
     <div class="note"><p>Already embedding <code>embed.vidrift.in</code>? Nothing to change: it serves the same player and sends the same messages, from the <code>https://embed.vidrift.in</code> origin. Switch to <code>embed.vidrift.net</code> whenever convenient, and update any <code>event.origin</code> check at the same time.</p></div>
     <span class="cap">Routes</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/{tmdb_id}
 https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
+https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
 
 <span class="tk-com">https://embed.vidrift.net/embed/movie/1440098     Drawn Together</span>
 <span class="tk-com">https://embed.vidrift.net/embed/tv/1399/1/1       Game of Thrones S01E01</span>
-<span class="tk-com">https://embed.vidrift.net/embed/tv/1429/1/1       Attack on Titan S01E01</span></pre></div>
+<span class="tk-com">https://embed.vidrift.net/embed/tv/1429/1/1       Attack on Titan S01E01</span>
+<span class="tk-com">https://embed.vidrift.net/embed/anilist/16498/1   Attack on Titan ep 1, by AniList id</span>
+<span class="tk-com">https://embed.vidrift.net/embed/anilist/21/150    One Piece ep 150 (absolute, as AniList counts)</span></pre></div>
+    <p>The AniList shape counts episodes the AniList way, per entry from 1, and anime movies need no episode. It answers with a redirect onto the TMDB URL, so the title plays with every server, not an anime-only one. Add <code>?dub=1</code> to start on the English dub. An AniList id with no TMDB mapping yet returns a 404.</p>
 
     <h2 id="params">Parameters</h2>
     <p>Every parameter is optional and validated server-side. Anything invalid is ignored rather than treated as an error, so a bad value never breaks playback.</p>
@@ -600,6 +605,8 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>layout</code></td><td><code>labeled</code></td><td>Worded controls instead of icons: a top bar with the episode name and runtime, Quality and Audio &amp; Subtitles menus that open on hover, and a full-screen Episodes view with stills. Phones keep the bottom sheets.</td></tr>
         <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>episodes</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
         <tr><td><code>mobileSheets</code></td><td><code>true</code></td><td>On phones, delegates the Settings, Subtitles and Source panels to your own UI. See <a class="lk" href="#mobile">Mobile sheet</a>.</td></tr>
+        <tr><td><code>fs</code></td><td><code>parent</code></td><td>Your page owns fullscreen. The fullscreen button sends <code>vidrift:fullscreen</code> instead of fullscreening the iframe; you fullscreen the box around it and answer <code>vidrift:fullscreen-state</code>. Lets you swap the iframe for the next episode without leaving fullscreen. See <a class="lk" href="#events">Messages</a>.</td></tr>
+        <tr><td><code>dub</code></td><td><code>1</code></td><td>AniList URLs only: start on the English dub server.</td></tr>
       </tbody>
     </table>
 
@@ -608,6 +615,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     <ul>
       <li>Movies: <code>themoviedb.org/movie/1440098</code> → id is <code>1440098</code></li>
       <li>TV and anime: <code>themoviedb.org/tv/1399</code> → id is <code>1399</code></li>
+      <li>Anime by AniList id: <code>anilist.co/anime/16498</code> → <code>/embed/anilist/16498/{episode}</code>. No TMDB lookup needed on your side.</li>
     </ul>
     <p>The <a class="lk" href="/#play" data-page="home">home page</a> builds the finished URL for you. Type an id into it, press Enter, and the real player loads.</p>
 
@@ -655,6 +663,7 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
     <ul>
       <li><strong>Lock.</strong> A padlock sits with the top-right controls. Locked, the controls stay hidden and a click or tap does nothing except bring up an Unlock button; keyboard shortcuts, Skip intro and Up Next keep working. It resets on every load. <code>hide=lock</code> removes it.</li>
       <li><strong>Video size.</strong> Fit, Fill and Stretch are in the Settings menu. Fit shows the whole picture, Fill crops it to cover the player, Stretch distorts it to fill. The choice is the viewer's and is remembered in their browser, so there is no parameter for it.</li>
+      <li><strong>Server.</strong> A server the viewer picks by hand is remembered for that title in their browser and leads on its other episodes, so an anime watched in dub stays in dub. A failover is never remembered, and your <code>provider</code> parameter still wins.</li>
       <li><strong>Touch.</strong> On a phone the first tap shows the controls and the centre button plays or pauses. A double tap on either side seeks 10 seconds.</li>
       <li><strong>Pause card.</strong> Three seconds into a pause, the title, year, TMDB rating, genres and overview fade in bottom-left over the frame. It never covers the controls, and it goes the moment playback resumes or the viewer seeks. There is no parameter for it.</li>
     </ul>
@@ -704,10 +713,12 @@ https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
         <tr><td><code>vidrift:exit</code></td><td class="dir">Player → Parent</td><td>The viewer clicked the Exit button (<code>?exit=1</code>). Close or navigate away from the player on your side; the player does nothing else.</td></tr>
         <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code>, <code>options</code> and <code>current</code>.</td></tr>
+        <tr><td><code>vidrift:fullscreen</code></td><td class="dir">Player → Parent</td><td>With <code>fs=parent</code>: the viewer pressed the fullscreen button, <code>F</code> or double-clicked. <code>on</code> is <code>true</code> to enter, <code>false</code> to leave. Call <code>requestFullscreen()</code> on the element around the iframe right away, inside the message handler, so the viewer's click still counts.</td></tr>
         <tr><td><code>vidrift:resume</code></td><td class="dir">Parent → Player</td><td>Seek to <code>currentTime</code> in seconds. Safe to send before the video is ready; it is applied once it is.</td></tr>
         <tr><td><code>vidrift:quality-preference</code></td><td class="dir">Parent → Player</td><td>Pin a rendition: <code>label</code> is <code>"1080p"</code>, <code>"720p"</code>, <code>"480p"</code>, <code>"360p"</code> or <code>"Auto"</code>.</td></tr>
         <tr><td><code>vidrift:nextup-info</code></td><td class="dir">Parent → Player</td><td>Take over episodes: the Up Next card and Next button use your <code>next: { season, episode }</code>, and the in-player Episodes list steps aside. Send <code>next: null</code> on the last episode.</td></tr>
         <tr><td><code>vidrift:mobile-option</code></td><td class="dir">Parent → Player</td><td>Reply to a <code>mobile-panel</code> message with the chosen <code>option</code> and <code>value</code>.</td></tr>
+        <tr><td><code>vidrift:fullscreen-state</code></td><td class="dir">Parent → Player</td><td>With <code>fs=parent</code>: tell the player whether your box is fullscreen (<code>on</code>). Send it on every <code>fullscreenchange</code> and once each new iframe has loaded, so the button icon, the title bar and the phone sheets follow.</td></tr>
       </tbody>
     </table>
     <span class="cap">One listener, every event</span>
