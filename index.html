@@ -3,357 +3,269 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VidRift — the free video embed API. One URL, every title.</title>
-<meta name="description" content="Drop movies, TV and anime into any site with a single iframe. No API key, no signup. Adaptive HLS, subtitles in 30+ languages, auto-next, and a player you can skin: hide controls, your name, logo, accent, art and watermark, all from the URL.">
+<title>VidRift — free video embed for movies, TV and anime</title>
+<meta name="description" content="One iframe URL plays any movie, series or anime by TMDB or AniList id. No key, no signup. Adaptive HLS, subtitles, auto next and an episode list are in the player; the look is yours from the query string.">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="canonical" href="https://vidrift.net/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="VidRift — the free video embed API">
-<meta property="og:description" content="One URL. Every title. No key, no signup.">
+<meta property="og:title" content="VidRift — free video embed API">
+<meta property="og:description" content="One iframe URL, every title. No key, no signup.">
 <meta property="og:url" content="https://vidrift.net/">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://embed.vidrift.net">
 <link rel="preconnect" href="https://image.tmdb.org">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Manrope:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ─────────────────────────────────────────────────────────────
-   Tokens. These are the embed player's own :root (server.js PLAYER_CSS),
-   so the page and the thing it sells read as one object: near-black,
-   paper ink, hairlines, one red used only as a signal.
-   ───────────────────────────────────────────────────────────── */
+/* Tokens are the player's own (server.js PLAYER_CSS): near-black, paper ink,
+   hairlines, one red kept for the brand mark and the active state. */
 :root{
-  --bg:#0b0b0d;
-  --surface:#111114;
-  --surface-2:#18181c;
-  --paper:#f2f1ed;
-  --ink:#f2f1ed;
-  --ink-2:#b9b6b0;
-  --ink-3:#77747a;
-  --hair:rgba(255,255,255,.12);
-  --hair-soft:rgba(255,255,255,.07);
-  --hair-strong:rgba(255,255,255,.28);
-  --brand:#E50914; --brand-rgb:229,9,20;
-  --live:#2FBF71;
-  --ease:cubic-bezier(.22,1,.36,1);
-  --spring:cubic-bezier(.34,1.56,.64,1);
+  --bg:#0b0b0d;--surface:#111114;--surface-2:#18181c;
+  --paper:#f2f1ed;--ink:#f2f1ed;--ink-2:#b9b6b0;--ink-3:#77747a;
+  --hair:rgba(255,255,255,.12);--hair-soft:rgba(255,255,255,.07);--hair-strong:rgba(255,255,255,.28);
+  --brand:#E50914;--brand-rgb:229,9,20;--ok:#2FBF71;
   --display:'Space Grotesk',ui-sans-serif,sans-serif;
   --body:'Manrope',ui-sans-serif,system-ui,sans-serif;
   --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
-  --shell:min(1240px,100% - 48px);
-  --r:6px; --r-lg:12px;
+  --shell:min(1120px,100% - 48px);
+  --col:220px;--gap:48px;
+  --r:6px;--r-lg:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  background:var(--bg);color:var(--ink);
-  font-family:var(--body);font-size:16px;line-height:1.55;overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:500 15px/1.6 var(--body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 button,input,select{font:inherit;color:inherit}
-button{cursor:pointer}
+button{cursor:pointer;background:none;border:0}
+code,pre{font-family:var(--mono)}
 ::selection{background:rgba(var(--brand-rgb),.28)}
-:focus-visible{outline:2px solid var(--paper);outline-offset:3px;border-radius:3px}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}}
+:focus-visible{outline:2px solid var(--paper);outline-offset:2px;border-radius:3px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}}
 
 .shell{width:var(--shell);margin-inline:auto}
-h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:-.035em;line-height:1.02}
-h1 em,h2 em{font-style:normal;color:var(--brand)}
-.lab{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
-.lab .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--live);margin-right:9px;vertical-align:1px;box-shadow:0 0 0 0 rgba(47,191,113,.5);animation:pulse 2.4s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,191,113,.45)}70%{box-shadow:0 0 0 8px rgba(47,191,113,0)}100%{box-shadow:0 0 0 0 rgba(47,191,113,0)}}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:-.025em;line-height:1.1}
+.lab{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.lk{color:var(--ink);border-bottom:1px solid var(--hair-strong)}
+.lk:hover{border-bottom-color:var(--ink)}
 
-/* ── buttons: the player's language. paper = primary, ghost = hairline ── */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:var(--r);
-  border:1px solid transparent;font-family:var(--body);font-size:14px;font-weight:700;letter-spacing:-.005em;white-space:nowrap;
-  transition:background .18s,border-color .18s,color .18s,transform .35s var(--spring);
-}
-.btn:active{transform:scale(.97)}
+/* buttons: paper = primary, ghost = hairline */
+.btn{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 16px;border-radius:var(--r);border:1px solid transparent;font-size:13.5px;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
 .btn-paper{background:var(--paper);color:var(--bg)}
 .btn-paper:hover{background:#fff}
-.btn-ghost{border-color:var(--hair);color:var(--ink);background:transparent}
+.btn-ghost{border-color:var(--hair);color:var(--ink)}
 .btn-ghost:hover{border-color:var(--hair-strong)}
-.btn .arr{transition:transform .3s var(--ease)}
-.btn:hover .arr{transform:translateX(3px)}
-.btn.done,.cp.done,.copy.done{background:var(--live) !important;color:#fff !important;border-color:transparent !important}
+.btn.done,.cp.done{background:var(--ok) !important;color:#fff !important;border-color:transparent !important}
 
-/* ── nav ─────────────────────────────────────────────────── */
-.nav-wrap{position:sticky;top:0;z-index:60;background:rgba(11,11,13,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .25s}
+/* nav */
+.nav-wrap{position:sticky;top:0;z-index:60;background:rgba(11,11,13,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .2s}
 .nav-wrap.stuck{border-bottom-color:var(--hair-soft)}
-.nav-in{display:flex;align-items:center;height:64px;gap:8px}
-.logo{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-.045em;display:inline-flex;align-items:baseline;gap:9px}
+.nav-in{display:flex;align-items:center;height:56px}
+.logo{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.03em}
 .logo em{font-style:normal;color:var(--brand)}
 .nav-spacer{flex:1}
-.pill{position:relative;display:flex;align-self:stretch;align-items:stretch}
-.pill a{display:flex;align-items:center;padding:0 14px;font-size:14px;font-weight:600;color:var(--ink-3);transition:color .2s}
+.pill{position:relative;display:flex;align-self:stretch}
+.pill a{display:flex;align-items:center;padding:0 12px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:color .15s}
 .pill a:hover,.pill a.active{color:var(--ink)}
-.indicator{position:absolute;bottom:-1px;left:0;height:2px;background:var(--paper);opacity:0;transition:transform .4s var(--ease),width .4s var(--ease),opacity .2s}
-.nav-discord{padding:0 4px 0 12px !important}
-.nav-discord:hover{color:#5865F2 !important}
+.indicator{position:absolute;bottom:-1px;left:0;height:1px;background:var(--paper);opacity:0;transition:transform .3s,width .3s,opacity .2s}
+.nav-discord{padding:0 0 0 12px !important}
 
-/* ── pages (SPA routes) ──────────────────────────────────── */
+/* pages (SPA routes) */
 .page{display:none}
 .page.active{display:block}
 
-/* ── hero ────────────────────────────────────────────────── */
-.hero{position:relative;padding:88px 0 0;overflow:hidden}
-.hero>.shell>*{animation:rise .8s var(--ease) both}
-.hero .lab{animation-delay:0s}
-.hero h1{animation-delay:.06s}
-.hero .lede{animation-delay:.12s}
-.hero .composer{animation-delay:.2s}
-.hero .try{animation-delay:.28s}
-.hero .stage{animation-delay:.36s}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.hero h1{font-size:clamp(52px,9vw,128px);line-height:.92;letter-spacing:-.05em;margin-top:22px;max-width:9ch}
-.hero .lede{max-width:56ch;margin-top:28px;font-size:18px;line-height:1.55;color:var(--ink-2)}
+/* hero */
+.hero{padding:64px 0 48px}
+.hero h1{font-size:clamp(32px,4.4vw,50px);max-width:20ch;letter-spacing:-.03em;line-height:1.05;margin-top:16px}
+.hero .lede{max-width:62ch;margin-top:18px;font-size:16.5px;color:var(--ink-2)}
 .hero .lede b{color:var(--ink);font-weight:600}
+.facts{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:22px;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.facts b{color:var(--ink-2);font-weight:500}
 
-/* The URL is the product, so the URL is the hero. It is typeset large,
-   the id is a live input, and the player underneath is the real one. */
-.composer{
-  margin-top:48px;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--surface);
-  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;padding:10px 10px 10px 22px;
-}
-.composer-url{
-  display:flex;align-items:center;flex-wrap:nowrap;min-width:0;overflow-x:auto;scrollbar-width:none;
-  font-family:var(--mono);font-size:clamp(14px,1.7vw,21px);font-weight:400;letter-spacing:-.01em;padding:8px 0;white-space:nowrap;
-}
+/* the URL builder: type, picks, the URL itself, the real player, the snippet, the options */
+.build{margin-top:40px;display:grid;gap:10px}
+.kinds{display:flex;align-items:center;gap:24px;flex-wrap:wrap;min-height:30px}
+.chips{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:var(--r)}
+.chip{height:28px;padding:0 12px;border-radius:4px;font-size:12.5px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
+.chip:hover{color:var(--ink)}
+.chip.on{background:var(--paper);color:var(--bg)}
+.picks{display:flex;align-items:center;gap:4px 16px;flex-wrap:wrap;font-size:13px}
+.picks .lab{margin-right:4px}
+.pick{color:var(--ink-2);font-weight:600;padding:2px 0;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
+.pick:hover{color:var(--ink)}
+.pick.on{color:var(--ink);border-bottom-color:var(--paper)}
+.pick small{color:var(--ink-3);font-weight:500;margin-left:6px;font-family:var(--mono);font-size:11px}
+
+.composer{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:6px 6px 6px 16px;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--surface)}
+.composer-url{display:flex;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none;font-family:var(--mono);font-size:15px;padding:8px 0;white-space:nowrap}
 .composer-url::-webkit-scrollbar{display:none}
 .u-dim{color:var(--ink-3)}
 .u-kind{color:var(--ink)}
-.u-id{
-  width:8ch;min-width:3ch;background:transparent;border:0;border-bottom:2px solid var(--brand);color:var(--paper);
-  font-family:var(--mono);font-size:inherit;padding:0 1px;caret-color:var(--brand);outline:0;transition:border-color .2s;
-}
+.u-id{width:8ch;min-width:3ch;background:transparent;border:0;border-bottom:1px solid var(--brand);color:var(--paper);font-family:var(--mono);font-size:inherit;padding:0 1px;caret-color:var(--brand);outline:0}
 .u-id:focus{border-bottom-color:var(--paper)}
 .u-ep{display:inline-flex;align-items:center}
 .u-ep[hidden]{display:none}
-.u-sel{
-  -webkit-appearance:none;appearance:none;background:transparent;border:0;border-bottom:1px solid var(--hair-strong);
-  color:var(--paper);font-family:var(--mono);font-size:inherit;padding:0 14px 0 1px;cursor:pointer;outline:0;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%2377747a' stroke-width='1.4'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 2px center;
-}
-.u-sel:hover{border-bottom-color:var(--paper)}
+.u-sel{-webkit-appearance:none;appearance:none;background:transparent;border:0;border-bottom:1px solid var(--hair-strong);color:var(--paper);font-family:var(--mono);font-size:inherit;padding:0 14px 0 1px;cursor:pointer;outline:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%2377747a' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center}
 .u-sel option{background:var(--surface-2);color:var(--paper)}
-.composer-actions{display:flex;gap:8px;flex-shrink:0}
+.composer-actions{display:flex;gap:6px}
 
-/* try-one strip: a few posters, on purpose. */
-.try{display:flex;align-items:center;gap:18px;margin-top:22px;flex-wrap:wrap}
-.chips{display:flex;gap:4px}
-.chip{
-  height:32px;padding:0 13px;border-radius:var(--r);border:1px solid transparent;background:transparent;
-  font-size:13px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s,transform .35s var(--spring);
-}
-.chip:hover{color:var(--ink)}
-.chip.on{background:var(--paper);color:var(--bg)}
-.chip:active{transform:scale(.96)}
-.picks{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 2px;margin:-4px -2px}
-.picks::-webkit-scrollbar{display:none}
-.pick{
-  position:relative;flex:0 0 auto;width:150px;display:flex;align-items:center;gap:9px;padding:5px 9px 5px 5px;border-radius:var(--r);
-  border:1px solid var(--hair-soft);background:var(--surface);text-align:left;
-  transition:border-color .18s,transform .4s var(--spring),background .18s;
-}
-.pick:hover{border-color:var(--hair-strong);transform:translateY(-2px)}
-.pick.on{border-color:var(--paper);background:var(--surface-2)}
-.pick.on::after{content:'';position:absolute;left:5px;top:5px;width:6px;height:6px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 2px var(--surface-2)}
-.pick img{width:28px;height:42px;object-fit:cover;border-radius:3px;background:var(--surface-2);flex-shrink:0}
-.pick span{display:block;min-width:0}
-.pick .pt{font-size:12.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pick .pr{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-3);margin-top:3px;white-space:nowrap}
-
-/* the live stage: the actual player, edge-served */
-.stage{margin-top:36px;border:1px solid var(--hair);border-radius:var(--r-lg);overflow:hidden;background:#000}
-.stage-frame{position:relative;aspect-ratio:16/9;width:100%;background:#000}
-.stage-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-.placeholder{position:absolute;inset:0;display:grid;place-items:center;cursor:pointer;overflow:hidden;background:#000;border:0;color:var(--paper);width:100%}
-.ph-bg{position:absolute;inset:-8%;width:116%;height:116%;object-fit:cover;filter:blur(28px) saturate(1.1);opacity:.42;transform:scale(1.05);transition:opacity .6s,transform 8s var(--ease)}
-.placeholder:hover .ph-bg{transform:scale(1.1)}
-.placeholder::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.55) 100%)}
-.ph-in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px}
-.play-ring{
-  width:64px;height:64px;border-radius:50%;background:var(--paper);color:var(--bg);display:grid;place-items:center;
-  box-shadow:0 0 0 0 rgba(242,241,237,.35);animation:ring 2.6s var(--ease) infinite;transition:transform .4s var(--spring);
-}
-.placeholder:hover .play-ring{transform:scale(1.06)}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;border:1px solid var(--hair);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
+.stage-frame{position:relative;aspect-ratio:16/9;background:#000}
+.stage-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.placeholder{position:absolute;inset:0;display:grid;place-items:center;width:100%;overflow:hidden;background:#000;color:var(--paper)}
+.ph-bg{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(24px);opacity:.35}
+.ph-in{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px}
+.play-ring{width:56px;height:56px;border-radius:50%;background:var(--paper);color:var(--bg);display:grid;place-items:center}
 .play-ring svg{margin-left:3px}
-@keyframes ring{0%{box-shadow:0 0 0 0 rgba(242,241,237,.35)}70%{box-shadow:0 0 0 18px rgba(242,241,237,0)}100%{box-shadow:0 0 0 0 rgba(242,241,237,0)}}
-.ph-text{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
-.stage-bar{display:flex;align-items:center;gap:16px;padding:12px 16px;border-top:1px solid var(--hair-soft);background:var(--surface);flex-wrap:wrap}
-.live{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3)}
-.live i{width:6px;height:6px;border-radius:50%;background:var(--live)}
-.now{display:flex;align-items:baseline;gap:12px;min-width:0;flex:1}
-.now strong{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.now .lab{white-space:nowrap}
-.out-tabs{display:flex;gap:2px;padding:2px;border:1px solid var(--hair-soft);border-radius:var(--r);background:var(--bg)}
-.out-tabs button{height:28px;padding:0 11px;border:0;border-radius:4px;background:transparent;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
+.ph-text{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.side{display:flex;flex-direction:column;min-width:0;border-left:1px solid var(--hair)}
+.side-now{padding:16px 18px 14px;border-bottom:1px solid var(--hair)}
+.side-now strong{display:block;font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-now .lab{display:block;margin-top:4px}
+.side-out{flex:1;display:flex;flex-direction:column;gap:10px;min-height:0;padding:14px 18px 16px}
+.out-tabs{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:var(--r);align-self:start}
+.out-tabs button{height:26px;padding:0 10px;border-radius:4px;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
 .out-tabs button:hover{color:var(--ink)}
 .out-tabs button.on{background:var(--paper);color:var(--bg)}
-.out{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:stretch;padding:12px 16px 14px;background:var(--surface);border-top:1px solid var(--hair-soft)}
-.out-code{font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--ink-2);white-space:pre;overflow-x:auto;scrollbar-width:thin;padding:10px 12px;border:1px solid var(--hair-soft);border-radius:var(--r);background:var(--bg)}
-.copy{height:auto;min-height:40px;padding:0 16px;border-radius:var(--r);border:1px solid transparent;background:var(--paper);color:var(--bg);font-size:13px;font-weight:700;transition:background .15s,transform .35s var(--spring)}
-.copy:hover{background:#fff}
-.copy:active{transform:scale(.97)}
+.out-code{flex:0 0 auto;max-height:220px;font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--ink-2);white-space:pre;overflow:auto;scrollbar-width:thin;padding:10px 12px;border:1px solid var(--hair-soft);border-radius:var(--r);background:var(--bg)}
+.side .btn{width:100%}
+.live{display:inline-flex;align-items:center;gap:7px;margin-top:auto}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--ok)}
 
-/* ── the tune panel: every parameter is a control, the URL rewrites live ── */
-.stage-body{display:grid;grid-template-columns:minmax(0,1fr) 336px}
-/* The panel is exactly the player's height and scrolls inside itself, so a
-   long option list never stretches the stage below 16:9. */
-.tune{position:relative;border-left:1px solid var(--hair-soft);background:var(--surface)}
-.tune-in{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;padding:16px 18px 14px;overflow:auto;scrollbar-width:thin}
-.tune-head{display:flex;align-items:center;justify-content:space-between}
-.tune-head .lab{color:var(--ink-2)}
-.tune-reset{height:26px;padding:0 10px;border:1px solid var(--hair);border-radius:4px;background:transparent;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,border-color .15s}
+/* options: one grid, one cell per parameter, the URL rewrites live */
+.opts{border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
+.opts-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--hair)}
+.opts-head p{font-size:13px;color:var(--ink-3)}
+.opts-head .lab{color:var(--ink-2);margin-right:14px}
+.tune-reset{height:26px;padding:0 10px;border:1px solid var(--hair);border-radius:4px;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,border-color .15s}
 .tune-reset:hover{color:var(--ink);border-color:var(--hair-strong)}
-.field{display:grid;gap:6px}
-.field>span{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.field>span code{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;text-transform:none;color:var(--ink-2)}
-.field input[type=text],.field input[type=url]{height:38px;width:100%;background:var(--bg);border:1px solid var(--hair);border-radius:var(--r);padding:0 11px;color:var(--paper);font-family:var(--mono);font-size:13px;transition:border-color .15s}
-.field input:focus{border-color:var(--paper);outline:0}
-.field input::placeholder{color:var(--ink-3)}
-.field select{height:38px;width:100%;-webkit-appearance:none;appearance:none;background:var(--bg);border:1px solid var(--hair);border-radius:var(--r);padding:0 32px 0 11px;color:var(--paper);font-family:var(--mono);font-size:13px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%2377747a' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.field select:focus{border-color:var(--paper);outline:0}
-.field select option{background:var(--surface-2);color:var(--paper)}
+.opts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 0 -1px}
+.opt{display:grid;gap:10px;align-content:start;padding:14px 18px 16px;border-right:1px solid var(--hair-soft);border-bottom:1px solid var(--hair-soft);min-width:0}
+.opt:nth-child(4n){border-right:0}
+.opt.wide{grid-column:2/-1;border-right:0}
+.opt-k{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;font-weight:600;color:var(--ink)}
+.opt-k code{font-size:11px;color:var(--ink-3)}
+.opt input[type=text],.opt input[type=url],.opt select{height:34px;width:100%;background:var(--bg);border:1px solid var(--hair);border-radius:var(--r);padding:0 10px;color:var(--paper);font-family:var(--mono);font-size:12.5px}
+.opt input:focus,.opt select:focus{border-color:var(--paper);outline:0}
+.opt input::placeholder{color:var(--ink-3)}
+.opt select{-webkit-appearance:none;appearance:none;padding-right:30px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%2377747a' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+.opt select option{background:var(--surface-2);color:var(--paper)}
 .seg{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:var(--r);background:var(--bg)}
-.seg button{flex:1;height:30px;border:0;border-radius:4px;background:transparent;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
+.seg button{flex:1;height:28px;border-radius:4px;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
 .seg button:hover{color:var(--ink)}
 .seg button.on{background:var(--paper);color:var(--bg)}
-.accent{display:flex;align-items:center;gap:6px}
-.sw{width:26px;height:26px;border-radius:50%;border:2px solid transparent;padding:0;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:transform .3s var(--spring),border-color .15s}
-.sw:hover{transform:scale(1.1)}
+.accent{display:flex;align-items:center;gap:6px;height:34px}
+.sw{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:border-color .15s}
 .sw.on{border-color:var(--paper)}
 .sw-any{position:relative;overflow:hidden;background:conic-gradient(#f43,#fc3,#3d6,#39f,#c4f,#f43)}
 .sw-any input{position:absolute;inset:-8px;width:200%;height:200%;opacity:0;cursor:pointer}
 .hides{display:flex;flex-wrap:wrap;gap:5px}
-.hd{height:28px;padding:0 10px;border:1px solid var(--hair);border-radius:999px;background:transparent;font-size:12px;font-weight:700;color:var(--ink-2);transition:background .15s,color .15s,border-color .15s,transform .3s var(--spring)}
+.hd{height:28px;padding:0 10px;border:1px solid var(--hair);border-radius:4px;font-size:12px;font-weight:600;color:var(--ink-2);transition:background .15s,color .15s,border-color .15s}
 .hd:hover{border-color:var(--hair-strong);color:var(--ink)}
 .hd.on{background:var(--paper);border-color:var(--paper);color:var(--bg);text-decoration:line-through}
-.hd:active{transform:scale(.95)}
-.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:600;color:var(--ink-2)}
-.tog small{display:block;font-weight:500;color:var(--ink-3);font-size:12px;margin-top:2px}
-.switch{position:relative;width:38px;height:22px;flex-shrink:0}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px;font-size:13px;color:var(--ink-2)}
+.tog small,.opt .hint{display:block;font-size:12px;color:var(--ink-3);line-height:1.45}
+.switch{position:relative;width:36px;height:20px;flex-shrink:0}
 .switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
-.switch i{position:absolute;inset:0;border-radius:999px;background:var(--surface-2);border:1px solid var(--hair);transition:background .2s,border-color .2s}
-.switch i::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--ink-2);transition:transform .3s var(--spring),background .2s}
+.switch i{position:absolute;inset:0;border-radius:999px;background:var(--surface-2);border:1px solid var(--hair);transition:background .15s,border-color .15s}
+.switch i::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:var(--ink-2);transition:transform .2s,background .15s}
 .switch input:checked+i{background:var(--paper);border-color:var(--paper)}
 .switch input:checked+i::after{background:var(--bg);transform:translateX(16px)}
 .switch input:disabled+i{opacity:.4}
-.tune-hint{font-size:12.5px;line-height:1.55;color:var(--ink-3);padding-top:10px;border-top:1px solid var(--hair-soft)}
-.tune-hint b{color:var(--ink-2);font-weight:600}
 
-/* ── sections ────────────────────────────────────────────── */
-.section{padding:104px 0 0}
-.sec-head{max-width:880px;padding-bottom:28px;border-bottom:1px solid var(--hair);margin-bottom:36px}
-.sec-head h2{font-size:clamp(32px,4.2vw,52px);letter-spacing:-.04em;max-width:16ch}
-.sec-head p{max-width:56ch;color:var(--ink-2);font-size:17px;margin-top:14px}
+/* sections: a label column, a content column, one hairline between sections */
+.sec{display:grid;grid-template-columns:var(--col) minmax(0,1fr);gap:var(--gap);padding:56px 0;border-top:1px solid var(--hair)}
+.sec>h2{font-size:20px;letter-spacing:-.02em;align-self:start;position:sticky;top:80px}
+.sec>h2 small{display:block;margin-top:6px;font:500 13px/1.5 var(--body);color:var(--ink-3);letter-spacing:0}
+.sec-body{min-width:0;max-width:720px}
+.sec-body>p{color:var(--ink-2)}
+.sec-body>p+*{margin-top:18px}
 
-/* spec sheet: hairline rows, like the player's settings list */
-.rows{max-width:880px}
-.row{display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;padding:26px 0;border-bottom:1px solid var(--hair);transition:background .2s}
-.row .n{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--ink-3);padding-top:4px}
-.row h3{font-size:20px;font-weight:600;letter-spacing:-.025em}
-.row p{margin-top:8px;color:var(--ink-2);font-size:15px;line-height:1.6;max-width:56ch}
-.row code{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--ink-2);padding:5px 9px;border:1px solid var(--hair-soft);border-radius:4px;background:var(--surface)}
+/* definition rows */
+.dl{display:grid;grid-template-columns:200px minmax(0,1fr);border-top:1px solid var(--hair)}
+.dl dt{padding:13px 16px 13px 0;font-weight:600;border-bottom:1px solid var(--hair-soft)}
+.dl dd{padding:13px 0;color:var(--ink-2);border-bottom:1px solid var(--hair-soft)}
+.dl code{font-size:12px;color:var(--ink)}
+
+/* questions */
+.qa{display:grid;grid-template-columns:260px minmax(0,1fr);gap:0 24px;border-top:1px solid var(--hair)}
+.qa dt{padding:16px 0;font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.015em;border-bottom:1px solid var(--hair-soft)}
+.qa dd{padding:17px 0;color:var(--ink-2);border-bottom:1px solid var(--hair-soft);max-width:60ch}
 
 /* code blocks */
 .codeblock{position:relative;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
-.codeblock pre{font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--ink-2);padding:18px 20px;overflow-x:auto;scrollbar-width:thin;tab-size:2}
-.codeblock .cp{position:absolute;top:10px;right:10px;height:28px;padding:0 11px;border-radius:4px;border:1px solid var(--hair);background:var(--bg);font-size:12px;font-weight:700;color:var(--ink-2);opacity:.75;transition:opacity .15s,border-color .15s,color .15s}
-.codeblock:hover .cp{opacity:1}
+.codeblock pre{font-size:12.5px;line-height:1.7;color:var(--ink-2);padding:16px 18px;overflow-x:auto;scrollbar-width:thin;tab-size:2}
+.codeblock .cp{position:absolute;top:8px;right:8px;height:26px;padding:0 10px;border-radius:4px;border:1px solid var(--hair);background:var(--bg);font-size:12px;font-weight:700;color:var(--ink-2);transition:border-color .15s,color .15s}
 .codeblock .cp:hover{border-color:var(--hair-strong);color:var(--ink)}
-.tk-tag{color:var(--ink-2)}.tk-atr{color:var(--ink-3)}.tk-str{color:var(--paper)}.tk-com{color:var(--ink-3);font-style:italic}.tk-key{color:#e2a35c}.tk-fn{color:#8fc2e8}
+.codeblock+.codeblock,.cap+.codeblock{margin-top:8px}
+.cap{display:block;margin-top:20px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.tk-tag{color:var(--ink-2)}.tk-atr{color:var(--ink-3)}.tk-str{color:var(--paper)}.tk-com{color:var(--ink-3)}.tk-key{color:#e2a35c}.tk-fn{color:#8fc2e8}
 
-/* faq */
-.faq{max-width:880px}
-.faq details{border-bottom:1px solid var(--hair)}
-.faq summary{display:grid;grid-template-columns:44px minmax(0,1fr) 24px;align-items:center;gap:16px;padding:22px 0;list-style:none;cursor:pointer;font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:-.025em}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary .n{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--ink-3);font-weight:400}
-.faq summary .x{position:relative;width:24px;height:24px}
-.faq summary .x::before,.faq summary .x::after{content:'';position:absolute;left:50%;top:50%;background:var(--ink-2);transition:transform .35s var(--ease)}
-.faq summary .x::before{width:14px;height:1.5px;transform:translate(-50%,-50%)}
-.faq summary .x::after{width:1.5px;height:14px;transform:translate(-50%,-50%)}
-.faq details[open] summary .x::after{transform:translate(-50%,-50%) rotate(90deg)}
-.faq .a{padding:0 0 24px 60px;color:var(--ink-2);font-size:15.5px;line-height:1.65;max-width:62ch}
-.faq .a code{font-family:var(--mono);font-size:13px;color:var(--ink)}
+/* footer */
+footer{border-top:1px solid var(--hair);padding:22px 0 28px}
+.foot{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--ink-3)}
+.foot a{color:var(--ink-2)}
+.foot a:hover{color:var(--ink)}
+.foot .sp{flex:1}
+.foot-note{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 
-
-/* ── footer ──────────────────────────────────────────────── */
-footer{margin-top:104px;padding:44px 0 36px;border-top:1px solid var(--hair)}
-.foot-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:40px}
-.foot-brand p{margin-top:12px;max-width:40ch;color:var(--ink-3);font-size:14px;line-height:1.6}
-.foot-links{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.foot-col h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px;font-weight:500}
-.foot-col a{display:block;font-size:14px;color:var(--ink-2);padding:4px 0;transition:color .15s}
-.foot-col a:hover{color:var(--ink)}
-.foot-base{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:40px;padding-top:20px;border-top:1px solid var(--hair-soft);font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-3)}
-
-/* ── docs ────────────────────────────────────────────────── */
-.docs-wrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:64px;padding:64px 0 0}
-.toc{position:sticky;top:88px;align-self:start}
-.toc h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px;font-weight:500}
-.toc a{display:block;padding:7px 0 7px 14px;font-size:14px;color:var(--ink-3);border-left:1px solid var(--hair);transition:color .15s,border-color .15s}
+/* docs */
+.docs-wrap{display:grid;grid-template-columns:var(--col) minmax(0,1fr);gap:var(--gap);padding:56px 0 72px}
+.toc{position:sticky;top:80px;align-self:start}
+.toc h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;font-weight:500}
+.toc a{display:block;padding:6px 0 6px 12px;font-size:13.5px;color:var(--ink-3);border-left:1px solid var(--hair);transition:color .15s,border-color .15s}
 .toc a:hover{color:var(--ink)}
 .toc a.on{color:var(--ink);border-left-color:var(--paper)}
-.doc{max-width:760px;min-width:0}
-.doc h1{font-size:clamp(40px,5.4vw,68px);letter-spacing:-.045em;margin-top:10px}
-.doc .lede{font-size:18px;color:var(--ink-2);margin-top:22px;line-height:1.6}
-.doc h2{font-size:30px;letter-spacing:-.035em;margin-top:80px;padding-top:28px;border-top:1px solid var(--hair);scroll-margin-top:96px}
-.doc h3{font-size:18px;letter-spacing:-.02em;margin-top:34px;font-family:var(--body);font-weight:700}
-.doc p{margin-top:14px;color:var(--ink-2);line-height:1.7}
-.doc ul{margin:14px 0 0 18px;color:var(--ink-2);line-height:1.7}
-.doc li{margin-top:6px}
-.doc code{font-family:var(--mono);font-size:13px;color:var(--ink);padding:1px 5px;border-radius:4px;background:var(--surface);border:1px solid var(--hair-soft)}
-.doc .codeblock{margin-top:14px}
-.doc .codeblock pre{color:var(--ink-2)}
-.doc .cap{display:block;margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.doc .cap+.codeblock{margin-top:8px}
-.lk{color:var(--ink);border-bottom:1px solid var(--hair-strong);transition:border-color .15s}
-.lk:hover{border-bottom-color:var(--ink)}
-.note{margin-top:22px;padding:16px 18px;border-left:2px solid var(--brand);background:var(--surface);border-radius:0 var(--r) var(--r) 0}
-.note p{margin:0;font-size:14.5px}
-table.ref{width:100%;border-collapse:collapse;margin-top:18px;font-size:14px}
+.doc{max-width:720px;min-width:0}
+.doc h1{font-size:clamp(30px,4vw,42px);letter-spacing:-.03em;margin-top:10px}
+.doc .lede{font-size:16.5px;color:var(--ink-2);margin-top:16px}
+.doc h2{font-size:22px;letter-spacing:-.02em;margin-top:64px;padding-top:24px;border-top:1px solid var(--hair);scroll-margin-top:84px}
+.doc h3{font-size:15px;margin-top:28px;font-family:var(--body);font-weight:700}
+.doc p{margin-top:12px;color:var(--ink-2)}
+.doc ul{margin:12px 0 0 18px;color:var(--ink-2)}
+.doc li{margin-top:5px}
+.doc li strong{color:var(--ink)}
+.doc code{font-size:12.5px;color:var(--ink);padding:1px 5px;border-radius:4px;background:var(--surface);border:1px solid var(--hair-soft)}
+.doc .codeblock{margin-top:12px}
+.doc .cap{margin-top:18px}
+.note{margin-top:16px;padding:12px 16px;border-left:2px solid var(--brand);background:var(--surface);border-radius:0 var(--r) var(--r) 0}
+.note p{margin:0;font-size:14px}
+table.ref{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
 table.ref th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:500;padding:0 12px 10px 0;border-bottom:1px solid var(--hair)}
-table.ref td{padding:12px 12px 12px 0;border-bottom:1px solid var(--hair-soft);vertical-align:top;color:var(--ink-2);line-height:1.55}
-table.ref td:first-child{white-space:nowrap}
+table.ref td{padding:11px 12px 11px 0;border-bottom:1px solid var(--hair-soft);vertical-align:top;color:var(--ink-2);line-height:1.55}
+table.ref td:first-child,table.ref td:nth-child(2){white-space:nowrap}
 table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink-3);white-space:nowrap}
 
-/* ── responsive ──────────────────────────────────────────── */
+/* responsive */
 @media(max-width:980px){
-  .stage-body{grid-template-columns:minmax(0,1fr)}
-  .tune{border-left:0;border-top:1px solid var(--hair-soft)}
-  .tune-in{position:static}
-  .docs-wrap{grid-template-columns:minmax(0,1fr);gap:32px}
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .side{border-left:0;border-top:1px solid var(--hair)}
+  .out-code{min-height:0}
+  .opts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opt:nth-child(4n){border-right:1px solid var(--hair-soft)}
+  .opt:nth-child(2n){border-right:0}
+  .opt.wide{grid-column:1/-1}
+  .sec,.docs-wrap{grid-template-columns:minmax(0,1fr);gap:20px}
+  .sec>h2{position:static}
   .toc{position:static;display:flex;flex-wrap:wrap;gap:4px}
   .toc h4{width:100%}
-  .toc a{border:1px solid var(--hair);border-radius:4px;padding:6px 10px;font-size:13px}
+  .toc a{border:1px solid var(--hair);border-radius:4px;padding:5px 9px;font-size:13px}
   .toc a.on{border-color:var(--paper)}
-  .foot-grid{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:640px){
-  :root{--shell:min(1240px,100% - 32px)}
-  .hero{padding-top:56px}
-  .hero h1{font-size:clamp(46px,15vw,72px)}
-  .hero .lede{font-size:16px}
-  .composer{grid-template-columns:minmax(0,1fr);padding:14px 14px 12px;gap:12px}
-  .composer-url{font-size:15px}
+  :root{--shell:min(1120px,100% - 32px)}
+  .hero{padding:40px 0 32px}
+  .composer{grid-template-columns:minmax(0,1fr);padding:10px 12px 10px}
   .composer-actions .btn{flex:1}
-  .try{gap:12px}
-  .stage{margin-top:24px;border-radius:var(--r)}
-  .stage-bar{gap:10px}
-  .now strong{font-size:14px}
-  .out{grid-template-columns:minmax(0,1fr)}
-  .out-code{font-size:11.5px}
-  .section{padding-top:72px}
-  .row{grid-template-columns:32px minmax(0,1fr)}
-  .faq summary{grid-template-columns:32px minmax(0,1fr) 24px;font-size:17px}
-  .faq .a{padding-left:48px}
+  .opts-grid{grid-template-columns:minmax(0,1fr)}
+  .opt,.opt:nth-child(4n){border-right:0}
+  .dl,.qa{grid-template-columns:minmax(0,1fr)}
+  .dl dt{padding-bottom:0;border-bottom:0}
+  .dl dd{padding-top:4px}
+  .qa dt{padding-bottom:0;border-bottom:0}
+  .qa dd{padding-top:6px}
+  .sec{padding:40px 0}
 }
 </style>
 </head>
@@ -379,164 +291,162 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 
 <section class="hero" id="play">
   <div class="shell">
-    <p class="lab"><span class="dot"></span>Free embed API · no key · no signup</p>
-    <h1>One URL<em>.</em><br>Every title<em>.</em><br>Your look<em>.</em></h1>
-    <p class="lede">Paste one iframe and any site gets the VidRift player: adaptive HLS, subtitles in 30+ languages, auto-next episodes. Then make it yours from the URL: hide any control, add your name, logo, accent, art and watermark. <b>80,000 movies, series and anime</b>, addressed by TMDB id. Try every option live below.</p>
+    <p class="lab">Free embed API · no key · no signup</p>
+    <h1>Movies, TV and anime, in one iframe.</h1>
+    <p class="lede">Build the URL from a TMDB or AniList id and drop it in. Adaptive HLS, subtitles, auto next and an episode list are already in the player. The look is yours from the query string.</p>
+    <p class="facts"><span><b>80,000</b> titles</span><span><b>30+</b> subtitle languages</span><span><b>0</b> dependencies</span><span><b>1</b> ad per public embed</span></p>
 
-    <!-- the URL, live. edit the id, press enter, it plays. -->
-    <div class="composer">
-      <div class="composer-url" aria-label="Embed URL">
-        <span class="u-dim">https://embed.vidrift.net/embed/</span><span class="u-kind" id="u-kind">movie</span><span class="u-dim">/</span><input class="u-id" id="u-id" value="1440098" inputmode="numeric" pattern="[0-9]*" aria-label="TMDB id" spellcheck="false" autocomplete="off"><span class="u-ep" id="u-ep" hidden><span class="u-dim">/</span><select class="u-sel" id="season" aria-label="Season"></select><span class="u-dim">/</span><select class="u-sel" id="episode" aria-label="Episode"></select></span>
+    <div class="build">
+      <div class="kinds">
+        <div class="chips" role="tablist" aria-label="Type">
+          <button class="chip on" data-kind="movie" type="button">Movie</button>
+          <button class="chip" data-kind="tv" type="button">TV</button>
+          <button class="chip" data-kind="anime" type="button">Anime</button>
+        </div>
+        <div class="picks" id="picks"></div>
       </div>
-      <div class="composer-actions">
-        <button class="btn btn-ghost" id="hero-copy" type="button">Copy URL</button>
-        <button class="btn btn-paper" id="u-play" type="button">Play <span class="arr">→</span></button>
-      </div>
-    </div>
 
-    <div class="try">
-      <div class="chips" role="tablist" aria-label="Type">
-        <button class="chip on" data-kind="movie" type="button">Movies</button>
-        <button class="chip" data-kind="tv" type="button">TV</button>
-        <button class="chip" data-kind="anime" type="button">Anime</button>
+      <div class="composer">
+        <div class="composer-url" aria-label="Embed URL">
+          <span class="u-dim">https://embed.vidrift.net/embed/</span><span class="u-kind" id="u-kind">movie</span><span class="u-dim">/</span><input class="u-id" id="u-id" value="1440098" inputmode="numeric" pattern="[0-9]*" aria-label="TMDB id" spellcheck="false" autocomplete="off"><span class="u-ep" id="u-ep" hidden><span class="u-dim">/</span><select class="u-sel" id="season" aria-label="Season"></select><span class="u-dim">/</span><select class="u-sel" id="episode" aria-label="Episode"></select></span>
+        </div>
+        <div class="composer-actions">
+          <button class="btn btn-ghost" id="hero-copy" type="button">Copy URL</button>
+          <button class="btn btn-paper" id="u-play" type="button">Play</button>
+        </div>
       </div>
-      <div class="picks" id="picks"></div>
-    </div>
 
-    <div class="stage">
-      <div class="stage-body">
-      <div class="stage-frame">
-        <button class="placeholder" id="placeholder" type="button" aria-label="Play in the real player">
-          <img class="ph-bg" id="ph-bg" alt="" src="https://image.tmdb.org/t/p/w342/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg">
-          <span class="ph-in">
-            <span class="play-ring"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7 4 20 12 7 20"/></svg></span>
-            <span class="ph-text">Play in the real player</span>
-          </span>
-        </button>
-        <iframe id="frame" title="VidRift player preview" style="display:none" allowfullscreen allow="autoplay; fullscreen; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      <div class="stage">
+        <div class="stage-frame">
+          <button class="placeholder" id="placeholder" type="button" aria-label="Play in the real player">
+            <img class="ph-bg" id="ph-bg" alt="" src="https://image.tmdb.org/t/p/w342/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg">
+            <span class="ph-in">
+              <span class="play-ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7 4 20 12 7 20"/></svg></span>
+              <span class="ph-text">Play in the real player</span>
+            </span>
+          </button>
+          <iframe id="frame" title="VidRift player preview" style="display:none" allowfullscreen allow="autoplay; fullscreen; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+        <aside class="side" aria-label="Embed code">
+          <div class="side-now"><strong id="now-title">Drawn Together</strong><span class="lab" id="now-meta">Movie · TMDB 1440098</span></div>
+          <div class="side-out">
+            <div class="out-tabs" role="tablist" aria-label="Snippet format">
+              <button class="on" data-out="url" type="button">URL</button>
+              <button data-out="html" type="button">iframe</button>
+              <button data-out="react" type="button">React</button>
+            </div>
+            <code class="out-code" id="out-code"></code>
+            <button class="btn btn-paper" id="out-copy" type="button">Copy</button>
+            <span class="lab live"><i></i>served from embed.vidrift.net</span>
+          </div>
+        </aside>
       </div>
-      <aside class="tune" id="tune" aria-label="Customise the player"><div class="tune-in">
-        <div class="tune-head"><span class="lab">Customise</span><button class="tune-reset" id="tune-reset" type="button">Reset</button></div>
-        <label class="field"><span>Your name <code>brand</code></span><input type="text" id="t-brand" maxlength="28" placeholder="Acme Stream" autocomplete="off" spellcheck="false"></label>
-        <div class="field"><span>Accent <code>brandColor</code></span>
-          <div class="accent" id="t-accent">
-            <button class="sw on" type="button" data-c="" style="--c:#E50914" aria-label="Default red"></button>
-            <button class="sw" type="button" data-c="00d1b2" style="--c:#00d1b2" aria-label="Teal"></button>
-            <button class="sw" type="button" data-c="ffb020" style="--c:#ffb020" aria-label="Amber"></button>
-            <button class="sw" type="button" data-c="7c5cff" style="--c:#7c5cff" aria-label="Violet"></button>
-            <button class="sw" type="button" data-c="2fbf71" style="--c:#2fbf71" aria-label="Green"></button>
-            <label class="sw sw-any" aria-label="Any colour"><input type="color" id="t-color" value="#E50914"></label>
+
+      <div class="opts" id="tune">
+        <div class="opts-head">
+          <p><span class="lab">Options</span>Every change rewrites the URL above and reloads the player. All of them are optional.</p>
+          <button class="tune-reset" id="tune-reset" type="button">Reset</button>
+        </div>
+        <div class="opts-grid">
+          <label class="opt"><span class="opt-k">Your name <code>brand</code></span><input type="text" id="t-brand" maxlength="28" placeholder="Acme Stream" autocomplete="off" spellcheck="false"></label>
+          <div class="opt"><span class="opt-k">Accent <code>brandColor</code></span>
+            <div class="accent" id="t-accent">
+              <button class="sw on" type="button" data-c="" style="--c:#E50914" aria-label="Default red"></button>
+              <button class="sw" type="button" data-c="00d1b2" style="--c:#00d1b2" aria-label="Teal"></button>
+              <button class="sw" type="button" data-c="ffb020" style="--c:#ffb020" aria-label="Amber"></button>
+              <button class="sw" type="button" data-c="7c5cff" style="--c:#7c5cff" aria-label="Violet"></button>
+              <button class="sw" type="button" data-c="2fbf71" style="--c:#2fbf71" aria-label="Green"></button>
+              <label class="sw sw-any" aria-label="Any colour"><input type="color" id="t-color" value="#E50914"></label>
+            </div>
+          </div>
+          <label class="opt"><span class="opt-k">Logo <code>brandLogo</code></span><input type="url" id="t-logo" placeholder="https://…/logo.png" autocomplete="off" spellcheck="false"></label>
+          <label class="opt"><span class="opt-k">Loading art <code>poster</code></span><input type="url" id="t-poster" placeholder="https://…/backdrop.jpg" autocomplete="off" spellcheck="false"></label>
+
+          <div class="opt"><span class="opt-k">Layout <code>layout</code></span><div class="seg" id="t-layout"><button type="button" class="on" data-l="">Icons</button><button type="button" data-l="labeled">Labeled</button></div></div>
+          <div class="opt"><span class="opt-k">UI size <code>uiScale</code></span><div class="seg" id="t-scale"><button type="button" data-s="0.85">0.85</button><button type="button" class="on" data-s="">1</button><button type="button" data-s="1.25">1.25</button><button type="button" data-s="1.5">1.5</button></div></div>
+          <div class="opt"><span class="opt-k">Control background <code>controlBg</code></span><div class="seg" id="t-bg"><button type="button" class="on" data-b="">Gradient</button><button type="button" data-b="solid">Solid</button></div></div>
+          <label class="opt"><span class="opt-k">Font <code>font</code></span><select id="t-font"><option value="">Space Grotesk · default</option><option>Inter</option><option>Roboto</option><option>Poppins</option><option>Montserrat</option><option>Bebas Neue</option><option>Oswald</option><option>Playfair Display</option><option>IBM Plex Sans</option></select></label>
+
+          <div class="opt"><span class="opt-k">Watermark <code>watermark=1</code></span><label class="tog"><small>Your logo in the corner while playing. Needs a logo.</small><span class="switch"><input type="checkbox" id="t-watermark" disabled><i></i></span></label></div>
+          <div class="opt"><span class="opt-k">Start muted <code>muted=1</code></span><label class="tog"><small>Sound stays off until the viewer taps the speaker.</small><span class="switch"><input type="checkbox" id="t-muted"><i></i></span></label></div>
+          <div class="opt"><span class="opt-k">Wait for a click <code>autoplay=0</code></span><label class="tog"><small>Load the source, show the first frame, play on tap.</small><span class="switch"><input type="checkbox" id="t-noauto"><i></i></span></label></div>
+          <div class="opt"><span class="opt-k">Exit button <code>exit=1</code></span><label class="tog"><small>An X that sends <code>vidrift:exit</code> to your page.</small><span class="switch"><input type="checkbox" id="t-exit"><i></i></span></label></div>
+
+          <div class="opt"><span class="opt-k">Title bar <code>showTitle=1</code></span><label class="tog"><small>Title top-left in windowed mode too, not only in fullscreen.</small><span class="switch"><input type="checkbox" id="t-showtitle"><i></i></span></label></div>
+          <div class="opt wide"><span class="opt-k">Hide controls <code>hide</code></span>
+            <div class="hides" id="t-hide">
+              <button class="hd" type="button" data-h="progress">Progress</button>
+              <button class="hd" type="button" data-h="volume">Volume</button>
+              <button class="hd" type="button" data-h="skip">Skip ±10s</button>
+              <button class="hd" type="button" data-h="time">Time</button>
+              <button class="hd" type="button" data-h="title">Title</button>
+              <button class="hd" type="button" data-h="server">Server</button>
+              <button class="hd" type="button" data-h="next">Next episode</button>
+              <button class="hd" type="button" data-h="episodes">Episodes</button>
+              <button class="hd" type="button" data-h="subtitles">Subtitles</button>
+              <button class="hd" type="button" data-h="settings">Settings</button>
+              <button class="hd" type="button" data-h="lock">Lock</button>
+              <button class="hd" type="button" data-h="pip">PiP</button>
+              <button class="hd" type="button" data-h="cast">Cast</button>
+              <button class="hd" type="button" data-h="fullscreen">Fullscreen</button>
+            </div>
+            <small class="hint">Cosmetic: keyboard shortcuts, tap to seek and the phone gestures keep working.</small>
           </div>
         </div>
-        <label class="field"><span>Logo <code>brandLogo</code></span><input type="url" id="t-logo" placeholder="https://…/logo.png" autocomplete="off" spellcheck="false"></label>
-        <label class="tog"><span>Watermark<small>Your logo in the corner while playing · <code>watermark=1</code></small></span><span class="switch"><input type="checkbox" id="t-watermark" disabled><i></i></span></label>
-        <label class="field"><span>Loading art <code>poster</code></span><input type="url" id="t-poster" placeholder="https://…/backdrop.jpg" autocomplete="off" spellcheck="false"></label>
-        <div class="field"><span>Hide controls <code>hide</code></span>
-          <div class="hides" id="t-hide">
-            <button class="hd" type="button" data-h="progress">Progress</button>
-            <button class="hd" type="button" data-h="volume">Volume</button>
-            <button class="hd" type="button" data-h="skip">Skip ±10s</button>
-            <button class="hd" type="button" data-h="time">Time</button>
-            <button class="hd" type="button" data-h="title">Title</button>
-            <button class="hd" type="button" data-h="server">Server</button>
-            <button class="hd" type="button" data-h="next">Next episode</button>
-            <button class="hd" type="button" data-h="subtitles">Subtitles</button>
-            <button class="hd" type="button" data-h="settings">Settings</button>
-            <button class="hd" type="button" data-h="lock">Lock</button>
-            <button class="hd" type="button" data-h="pip">PiP</button>
-            <button class="hd" type="button" data-h="cast">Cast</button>
-            <button class="hd" type="button" data-h="fullscreen">Fullscreen</button>
-          </div>
-        </div>
-        <div class="field"><span>UI size <code>uiScale</code></span><div class="seg" id="t-scale"><button type="button" data-s="0.85">Compact</button><button type="button" class="on" data-s="">Default</button><button type="button" data-s="1.25">Large</button><button type="button" data-s="1.5">TV</button></div></div>
-        <div class="field"><span>Control background <code>controlBg</code></span><div class="seg" id="t-bg"><button type="button" class="on" data-b="">Gradient</button><button type="button" data-b="solid">Solid</button></div></div>
-        <label class="field"><span>Font <code>font</code></span><select id="t-font"><option value="">Space Grotesk · default</option><option>Inter</option><option>Roboto</option><option>Poppins</option><option>Montserrat</option><option>Bebas Neue</option><option>Oswald</option><option>Playfair Display</option><option>IBM Plex Sans</option></select></label>
-        <label class="tog"><span>Start muted<small>Sound stays off until the viewer taps · <code>muted=1</code></small></span><span class="switch"><input type="checkbox" id="t-muted"><i></i></span></label>
-        <label class="tog"><span>Wait for a click<small>No autoplay, first frame on tap · <code>autoplay=0</code></small></span><span class="switch"><input type="checkbox" id="t-noauto"><i></i></span></label>
-        <label class="tog"><span>Show title bar<small>Title top-left in windowed mode too · <code>showTitle=1</code></small></span><span class="switch"><input type="checkbox" id="t-showtitle"><i></i></span></label>
-        <label class="tog"><span>Exit button<small>An X top-right that messages your page · <code>exit=1</code></small></span><span class="switch"><input type="checkbox" id="t-exit"><i></i></span></label>
-        <p class="tune-hint">Every change rewrites the URL and snippet below and reloads the player. <b>Name, logo, accent and art</b> show on the loading card, which only appears when a start takes longer than two seconds. Hidden controls are cosmetic: keyboard shortcuts keep working.</p>
-      </div></aside>
-      </div>
-      <div class="stage-bar">
-        <span class="live"><i></i>embed.vidrift.net</span>
-        <div class="now"><strong id="now-title">Drawn Together</strong><span class="lab" id="now-meta">Movie · TMDB 1440098</span></div>
-        <div class="out-tabs" role="tablist" aria-label="Snippet format">
-          <button class="on" data-out="url" type="button">URL</button>
-          <button data-out="html" type="button">iframe</button>
-          <button data-out="react" type="button">React</button>
-        </div>
-      </div>
-      <div class="out">
-        <code class="out-code" id="out-code"></code>
-        <button class="copy" id="out-copy" type="button">Copy</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── what you get ── -->
-<section class="section">
-  <div class="shell">
-    <div class="sec-head">
-      <h2>Everything on by default.</h2>
-      <p>No settings page. Paste the URL and this is what your viewers get, on every device.</p>
+<div class="shell">
+  <section class="sec" id="included">
+    <h2>In the player<small>Nothing to switch on.</small></h2>
+    <div class="sec-body">
+      <dl class="dl">
+        <dt>Adaptive HLS</dt><dd>hls.js ships inside the iframe. Quality steps down on a bad connection and back up when it recovers.</dd>
+        <dt>Subtitles</dt><dd>30+ languages picked up per title, with size, colour, background and timing controls. Viewers can upload their own file.</dd>
+        <dt>Episodes</dt><dd>On TV and anime an Episodes button opens the seasons and episodes in the player. A pick swaps the iframe and keeps your parameters.</dd>
+        <dt>Auto next</dt><dd>An Up Next card with the next episode's still appears as the credits start, from The Intro DB (TV) or AniSkip (anime), and plays on after five seconds.</dd>
+        <dt>Skip intro</dt><dd>A Skip button over intros, recaps and openings, from the same two sources.</dd>
+        <dt>Servers</dt><dd>Several sources per title with automatic failover. A server the viewer picks is remembered for that title, so a dub stays a dub.</dd>
+        <dt>Viewer controls</dt><dd>Screen lock, Fit / Fill / Stretch, volume boost, playback speed, picture in picture, Chromecast.</dd>
+        <dt>Pause card</dt><dd>Three seconds into a pause, the title, year, rating, genres and overview fade in over the frame.</dd>
+        <dt>Messages</dt><dd>Progress, pause, episode changes and more arrive by <code>postMessage</code>, so a page can save and resume position. See the <a class="lk" href="/docs#events" data-page="docs">messages table</a>.</dd>
+      </dl>
     </div>
-    <div class="rows">
-      <div class="row"><span class="n">01</span><div><h3>Adaptive HLS</h3><p>hls.js ships inside the iframe, so there is nothing to install. Quality steps down cleanly on a bad connection and back up when it recovers.</p></div></div>
-      <div class="row"><span class="n">02</span><div><h3>Subtitles in 30+ languages</h3><p>Picked up automatically per title, with size, colour, background and timing controls in the player.</p></div></div>
-      <div class="row"><span class="n">03</span><div><h3>Auto next episode</h3><p>An Up Next card appears as the credits or ending theme start (The Intro DB for TV, AniSkip for anime; 30 seconds before the end when neither knows the episode), shows the next episode's still and counts down to it. The player works out what comes next by itself; tell it only if your page wants to drive episodes.</p></div></div>
-      <div class="row"><span class="n">04</span><div><h3>Screen lock and picture size</h3><p>A lock button keeps stray touches and mouse nudges from waking the controls. Fit, Fill or Stretch the picture to the screen from the settings menu, and the choice sticks.</p></div></div>
-      <div class="row"><span class="n">05</span><div><h3>Episodes in the player</h3><p>On TV and anime an Episodes button opens a season-by-season list in the control bar, so a viewer can jump anywhere without leaving the player. Your page does not have to build one.</p></div></div>
-      <div class="row"><span class="n">06</span><div><h3>Pause card</h3><p>Three seconds into a pause, the title, year, rating, genres and overview fade in over the frame. Resume and it is gone.</p></div></div>
-      <div class="row"><span class="n">07</span><div><h3>Make it yours</h3><p>Hide any control. Put your name, logo and accent on it. Replace the loading art. Add a watermark. All of it is query parameters, all of it is optional, and the panel above builds the URL for you. Save watch progress and resume it through postMessage.</p><code>?hide= · ?brand= · ?brandLogo= · ?brandColor= · ?poster= · ?watermark=</code></div></div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- ── integration ── -->
-<section class="section">
-  <div class="shell">
-    <div class="sec-head">
-      <h2>Drop it in.</h2>
-      <p>One iframe is the whole integration. Progress saving, auto-next and every customisation parameter are in the <a class="lk" href="/docs" data-page="docs">docs</a>.</p>
-    </div>
-    <div class="codeblock" style="max-width:880px"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
+  <section class="sec" id="install">
+    <h2>Install<small>One iframe is the integration.</small></h2>
+    <div class="sec-body">
+      <p>Three URL shapes. Anime takes the TV shape with the show's TMDB id, or its AniList id if that is what your site has.</p>
+      <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/{tmdb_id}
+https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
+https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}</pre></div>
+      <span class="cap">Responsive embed</span>
+      <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
   <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.net/embed/movie/1440098"</span>
     <span class="tk-atr">style</span>=<span class="tk-str">"position:absolute;inset:0;width:100%;height:100%;border:0"</span>
     <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span>
-<span class="tk-tag">&lt;/div&gt;</span>
-
-<span class="tk-com">&lt;!-- TV and anime: /embed/tv/{id}/{season}/{episode} --&gt;</span>
-<span class="tk-com">&lt;!-- Anime by AniList id: /embed/anilist/{id}/{episode} --&gt;</span></pre></div>
-  </div>
-</section>
-
-<!-- ── faq ── -->
-<section class="section">
-  <div class="shell">
-    <div class="sec-head">
-      <h2>Straight answers.</h2>
+<span class="tk-tag">&lt;/div&gt;</span></pre></div>
+      <p style="margin-top:18px">Parameters, messages, the mobile sheet and page-owned fullscreen are in the <a class="lk" href="/docs" data-page="docs">docs</a>.</p>
     </div>
-    <div class="faq">
-      <details open>
-        <summary><span class="n">01</span>Is it actually free?<span class="x"></span></summary>
-        <div class="a">Yes. The player carries a single ad on public embeds, and that is what pays for the bandwidth. Nothing is metered, nothing expires, and you are never asked for a card.</div>
-      </details>
-      <details>
-        <summary><span class="n">02</span>Do I need an API key or an account?<span class="x"></span></summary>
-        <div class="a">No. There is no signup, no key and no domain allowlist. Build the URL, put it in an iframe, done. The only ids involved are TMDB's, which are public.</div>
-      </details>
-      <details>
-        <summary><span class="n">03</span>Where does the content come from?<span class="x"></span></summary>
-        <div class="a">VidRift does not own or store the underlying media. It indexes and relays what is already publicly reachable, and metadata comes from TMDB. Takedown requests reach a human on <a class="lk" href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener">Discord</a> and are handled per title.</div>
-      </details>
+  </section>
+
+  <section class="sec" id="questions">
+    <h2>Questions</h2>
+    <div class="sec-body">
+      <dl class="qa">
+        <dt>Is it free?</dt><dd>Yes. Public embeds carry a single ad, which pays for the bandwidth. Nothing is metered, nothing expires, and there is no card to enter.</dd>
+        <dt>Do I need a key or an account?</dt><dd>No. There is no signup, no key and no domain allowlist. Build the URL, put it in an iframe, done. The only ids involved are TMDB's and AniList's, which are public.</dd>
+        <dt>Where does the content come from?</dt><dd>VidRift does not own or store the media. It indexes and relays what is already publicly reachable; metadata comes from TMDB. Takedown requests reach a human on <a class="lk" href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener">Discord</a> and are handled per title.</dd>
+        <dt>What breaks it?</dt><dd>A <code>sandbox</code> attribute on the iframe, and fetching an embed URL with a script instead of framing it. Everything else that is wrong in a URL is ignored rather than treated as an error.</dd>
+      </dl>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 </main>
 
-<!-- ══════════════════════════ DOCS ══════════════════════════ -->
 <main class="page" id="page-docs">
 <div class="shell docs-wrap">
   <nav class="toc" id="toc">
@@ -556,7 +466,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 
   <article class="doc">
     <span class="lab">Documentation</span>
-    <h1>Everything the embed can do.</h1>
+    <h1>Everything the embed can do</h1>
     <p class="lede">The player is a single cross-origin iframe. Nothing to install, nothing to authenticate. Everything below is a URL parameter or a <code>postMessage</code>. That is the entire API surface.</p>
 
     <h2 id="quickstart">Quick start</h2>
@@ -603,7 +513,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
         <tr><td><code>font</code></td><td>Google Fonts family</td><td>Swaps the player's typeface, e.g. <code>font=Inter</code> or <code>font=Bebas%20Neue</code>. Letters, digits and spaces only.</td></tr>
         <tr><td><code>muted</code></td><td><code>1</code></td><td>Start muted for this load. Sound comes on when the viewer taps the speaker.</td></tr>
         <tr><td><code>autoplay</code></td><td><code>0</code></td><td>Do not autoplay. The player loads the source and waits for a click. Note that <em>forcing</em> autoplay with sound is not possible in any browser; the default is already the most that browsers allow.</td></tr>
-        <tr><td><code>layout</code></td><td><code>labeled</code></td><td>Worded controls instead of icons: a top bar with the episode name and runtime, Quality and Audio &amp; Subtitles menus that open on hover, and a full-screen Episodes view with stills. Phones keep the bottom sheets.</td></tr>
+        <tr><td><code>layout</code></td><td><code>labeled</code></td><td>Worded controls instead of icons: a top bar with the episode name and runtime; a Quality menu (quality, server, speed, volume boost, Fit / Fill / Stretch) and an Audio &amp; Subtitles menu that open under their button; Lock, picture in picture and Cast beside fullscreen; a full-screen Episodes list with stills. Phones keep the bottom sheets.</td></tr>
         <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>episodes</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Cosmetic only: keyboard shortcuts keep working.</td></tr>
         <tr><td><code>mobileSheets</code></td><td><code>true</code></td><td>On phones, delegates the Settings, Subtitles and Source panels to your own UI. See <a class="lk" href="#mobile">Mobile sheet</a>.</td></tr>
         <tr><td><code>fs</code></td><td><code>parent</code></td><td>Your page owns fullscreen. The fullscreen button sends <code>vidrift:fullscreen</code> instead of fullscreening the iframe; you fullscreen the box around it and answer <code>vidrift:fullscreen-state</code>. Lets you swap the iframe for the next episode without leaving fullscreen. See <a class="lk" href="#events">Messages</a>.</td></tr>
@@ -642,7 +552,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
       <li><code>watermark=1</code> shows <code>brandLogo</code> as a small corner bug, top-right, only while the controls are hidden, so it never covers the top bar. Pass an <strong>https</strong> URL instead of <code>1</code> to use a different image.</li>
       <li><code>showTitle=1</code> keeps the title bar (top-left) visible in windowed mode, not only in fullscreen.</li>
       <li><code>exit=1</code> adds an Exit button next to the other top-right controls, and in the top-right corner of the "Not out yet" and "This one won't play right now" screens. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
-      <li><code>layout=labeled</code> swaps the icon bar for worded controls: Quality (with Server and speed) and Audio &amp; Subtitles open on hover under their button, Episodes opens a full-screen view with stills, overviews and an Auto next switch. On phones the same buttons open the usual bottom sheets.</li>
+      <li><code>layout=labeled</code> swaps the icon bar for worded controls: Quality (with server, speed, volume boost and picture size) and Audio &amp; Subtitles open under their button and stay inside the player at any <code>uiScale</code>; Lock, picture in picture and Cast sit beside fullscreen; Episodes opens a full-screen list with stills, overviews and an Auto next switch. On phones the same buttons open the usual bottom sheets.</li>
       <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>episodes</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
     </ul>
     <span class="cap">Fully customised embed</span>
@@ -771,30 +681,16 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
 
 <footer>
   <div class="shell">
-    <div class="foot-grid">
-      <div class="foot-brand">
-        <a href="/" class="logo" data-nav="home">vidrift<em>.</em></a>
-        <p>A free video embed API for movies, TV and anime. One URL, no key, no signup.</p>
-      </div>
-      <div class="foot-links">
-        <div class="foot-col">
-          <h4>Product</h4>
-          <a href="/#play" data-page="home">Get the URL</a>
-          <a href="/docs" data-page="docs">Documentation</a>
-          <a href="/docs#branding" data-page="docs">Customise</a>
-        </div>
-        <div class="foot-col">
-          <h4>Community</h4>
-          <a href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">Discord</a>
-          <a href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">Report an issue</a>
-          <a href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">Takedown request</a>
-        </div>
-      </div>
-    </div>
-    <div class="foot-base">
+    <div class="foot">
+      <a href="/" class="logo" data-nav="home">vidrift<em>.</em></a>
+      <a href="/docs" data-page="docs">Docs</a>
+      <a href="/docs#events" data-page="docs">Messages</a>
+      <a href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">Discord</a>
+      <a href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">Takedown request</a>
+      <span class="sp"></span>
       <span>© <span id="yr">2026</span> VidRift</span>
-      <span>Metadata by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
     </div>
+    <p class="foot-note">Metadata and artwork by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
   </div>
 </footer>
 
@@ -945,7 +841,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
       (cur.kind === 'movie' ? '' : '/' + cur.season + '/' + cur.episode);
   }
   // Everything the panel controls, in the order the URL prints it.
-  var tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, scale: '', bg: '', font: '', muted: false, noauto: false };
+  var tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, layout: '', scale: '', bg: '', font: '', muted: false, noauto: false };
   function buildUrl() {
     var q = [];
     // A typed-in id has no known title; the player fetches its own metadata.
@@ -958,6 +854,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
     if (tune.hide.length) q.push('hide=' + tune.hide.join(','));
     if (tune.showTitle) q.push('showTitle=1');
     if (tune.exit) q.push('exit=1');
+    if (tune.layout) q.push('layout=' + tune.layout);
     if (tune.scale) q.push('uiScale=' + tune.scale);
     if (tune.bg) q.push('controlBg=' + tune.bg);
     if (tune.font) q.push('font=' + encodeURIComponent(tune.font));
@@ -1069,10 +966,9 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
   /* ── picks + chips ───────────────────────────────────────── */
   function renderPicks() {
     $('picks').innerHTML = PICKS[cur.kind].map(function (p) {
-      return '<button class="pick" type="button" data-id="' + p.id + '">' +
-        '<img src="' + IMG + 'w92' + p.p + '" alt="" loading="lazy">' +
-        '<span><span class="pt">' + esc(p.t) + '</span><span class="pr">' + esc(p.y) + '</span></span></button>';
+      return '<button class="pick" type="button" data-id="' + p.id + '">' + esc(p.t) + '<small>' + esc(p.y) + '</small></button>';
     }).join('');
+    $('picks').insertAdjacentHTML('afterbegin', '<span class="lab">Try</span>');
     $('picks').querySelectorAll('.pick').forEach(function (b) {
       b.addEventListener('click', function () {
         var p = PICKS[cur.kind].filter(function (x) { return x.id === Number(b.dataset.id); })[0];
@@ -1182,7 +1078,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
       });
     });
   }
-  seg('t-scale', 'scale', 's'); seg('t-bg', 'bg', 'b');
+  seg('t-scale', 'scale', 's'); seg('t-bg', 'bg', 'b'); seg('t-layout', 'layout', 'l');
   function setColor(hex) {
     tune.color = hex;
     document.querySelectorAll('#t-accent .sw[data-c]').forEach(function (b) { b.classList.toggle('on', b.dataset.c === hex); });
@@ -1202,10 +1098,10 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
     });
   });
   $('tune-reset').addEventListener('click', function () {
-    tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, scale: '', bg: '', font: '', muted: false, noauto: false };
+    tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, layout: '', scale: '', bg: '', font: '', muted: false, noauto: false };
     $('t-brand').value = $('t-logo').value = $('t-poster').value = $('t-font').value = '';
     $('t-watermark').checked = $('t-showtitle').checked = $('t-exit').checked = $('t-muted').checked = $('t-noauto').checked = false;
-    document.querySelectorAll('#t-scale button,#t-bg button').forEach(function (b) { b.classList.toggle('on', b.dataset.s === '' || b.dataset.b === ''); }); $('t-watermark').disabled = true;
+    document.querySelectorAll('#t-scale button,#t-bg button,#t-layout button').forEach(function (b) { b.classList.toggle('on', b.dataset.s === '' || b.dataset.b === '' || b.dataset.l === ''); }); $('t-watermark').disabled = true;
     document.querySelectorAll('#t-hide .hd').forEach(function (b) { b.classList.remove('on'); });
     setColor('');
   });
