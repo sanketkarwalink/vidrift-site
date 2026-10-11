@@ -485,7 +485,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
     <div class="rows">
       <div class="row"><span class="n">01</span><div><h3>Adaptive HLS</h3><p>hls.js ships inside the iframe, so there is nothing to install. Quality steps down cleanly on a bad connection and back up when it recovers.</p></div></div>
       <div class="row"><span class="n">02</span><div><h3>Subtitles in 30+ languages</h3><p>Picked up automatically per title, with size, colour, background and timing controls in the player.</p></div></div>
-      <div class="row"><span class="n">03</span><div><h3>Auto next episode</h3><p>An Up Next card appears 30 seconds before the end of an episode and counts down to the next one. The player works out what comes next by itself; tell it only if your page wants to drive episodes.</p></div></div>
+      <div class="row"><span class="n">03</span><div><h3>Auto next episode</h3><p>An Up Next card appears as the credits or ending theme start (The Intro DB for TV, AniSkip for anime; 30 seconds before the end when neither knows the episode), shows the next episode's still and counts down to it. The player works out what comes next by itself; tell it only if your page wants to drive episodes.</p></div></div>
       <div class="row"><span class="n">04</span><div><h3>Screen lock and picture size</h3><p>A lock button keeps stray touches and mouse nudges from waking the controls. Fit, Fill or Stretch the picture to the screen from the settings menu, and the choice sticks.</p></div></div>
       <div class="row"><span class="n">05</span><div><h3>Episodes in the player</h3><p>On TV and anime an Episodes button opens a season-by-season list in the control bar, so a viewer can jump anywhere without leaving the player. Your page does not have to build one.</p></div></div>
       <div class="row"><span class="n">06</span><div><h3>Pause card</h3><p>Three seconds into a pause, the title, year, rating, genres and overview fade in over the frame. Resume and it is gone.</p></div></div>
@@ -682,12 +682,14 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
 });</pre></div>
 
     <h2 id="nextup">Auto next episode</h2>
-    <p>For TV and anime the player shows a five-second Up Next card 30 seconds before the end of an episode, then plays the next one in the same iframe. It knows the next episode from the same season list the Episodes button uses, so by default there is nothing to do.</p>
+    <p>For TV and anime the player shows a five-second Up Next card with the next episode's still as the credits start (The Intro DB for TV, AniSkip's ending marker for anime, 30 seconds before the end as the fallback), then plays the next one in the same iframe. It knows the next episode from the same season list the Episodes button uses, so by default there is nothing to do.</p>
     <p>A page that drives episodes itself takes over with the two messages below. Once your page has sent <code>vidrift:nextup-info</code>, the card and the Next episode button in the control bar follow your page: the countdown or a click sends <code>vidrift:nextup-play</code> and your page swaps the URL. Send <code>next: null</code> on the last episode and the button goes away; <code>hide=next</code> removes it for good.</p>
     <span class="cap">1 · Parent → Player, once the iframe has loaded (only if your page drives episodes)</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>iframe.contentWindow.<span class="tk-fn">postMessage</span>({
   type: <span class="tk-str">"vidrift:nextup-info"</span>,
-  next: { season: <span class="tk-key">1</span>, episode: <span class="tk-key">2</span> }
+  next: { season: <span class="tk-key">1</span>, episode: <span class="tk-key">2</span>,
+          <span class="tk-com">// optional, shown on the card:</span>
+          name: <span class="tk-str">"The Kingsroad"</span>, still: <span class="tk-str">"https://image.tmdb.org/t/p/w300/..."</span> }
 }, <span class="tk-str">"https://embed.vidrift.net"</span>);</pre></div>
     <span class="cap">2 · Player → Parent, when the countdown ends or the viewer clicks Play Next</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
@@ -699,7 +701,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
 });</pre></div>
 
     <h2 id="events">Messages</h2>
-    <p>Every message is scoped to the <code>https://embed.vidrift.net</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>. On anime titles they also carry <code>anilist: { id, episode }</code>, the AniList entry actually playing and the episode number inside it (counted from 1, so the next cour reports the next entry), <code>null</code> elsewhere. Key continue watching on it from <code>vidrift:progress</code> if your site thinks in AniList ids.</p>
+    <p>Every message is scoped to the <code>https://embed.vidrift.net</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>. On anime titles they also carry <code>anilist: { id, mal, episode }</code>, the AniList entry actually playing (with its MyAnimeList id) and the episode number inside it (counted from 1, so the next cour reports the next entry), <code>null</code> elsewhere. Key continue watching on it from <code>vidrift:progress</code> if your site thinks in AniList ids.</p>
     <table class="ref">
       <thead><tr><th>Type</th><th>Direction</th><th>When</th></tr></thead>
       <tbody>
@@ -708,7 +710,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
         <tr><td><code>vidrift:unpaused</code></td><td class="dir">Player → Parent</td><td>Playback started or resumed. Adds <code>currentTime</code>. Hide that UI again.</td></tr>
         <tr><td><code>vidrift:ui-visible</code></td><td class="dir">Player → Parent</td><td>The player's own controls (top and bottom bars) came on screen: mouse move, tap, or pause. Show an overlay of yours at the same moment and it reads as part of the player.</td></tr>
         <tr><td><code>vidrift:ui-hidden</code></td><td class="dir">Player → Parent</td><td>The controls auto-hid, the pointer left while playing, or the player was locked. Hide that overlay again. Sent once per change, plus once on load for the initial state.</td></tr>
-        <tr><td><code>vidrift:nextup</code></td><td class="dir">Player → Parent</td><td>Once, 30 seconds before the end.</td></tr>
+        <tr><td><code>vidrift:nextup</code></td><td class="dir">Player → Parent</td><td>Once, as the credits or ending theme start (30 seconds before the end when no skip data exists).</td></tr>
         <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button. Only sent once your page has sent <code>vidrift:nextup-info</code>; otherwise the player moves on by itself.</td></tr>
         <tr><td><code>vidrift:episode</code></td><td class="dir">Player → Parent</td><td>The viewer picked an episode in the player, or Up Next moved on by itself. Carries the new <code>season</code> and <code>episode</code>; the iframe swaps right after.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
@@ -717,7 +719,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
         <tr><td><code>vidrift:fullscreen</code></td><td class="dir">Player → Parent</td><td>With <code>fs=parent</code>: the viewer pressed the fullscreen button, <code>F</code> or double-clicked. <code>on</code> is <code>true</code> to enter, <code>false</code> to leave. Call <code>requestFullscreen()</code> on the element around the iframe right away, inside the message handler, so the viewer's click still counts.</td></tr>
         <tr><td><code>vidrift:resume</code></td><td class="dir">Parent → Player</td><td>Seek to <code>currentTime</code> in seconds. Safe to send before the video is ready; it is applied once it is.</td></tr>
         <tr><td><code>vidrift:quality-preference</code></td><td class="dir">Parent → Player</td><td>Pin a rendition: <code>label</code> is <code>"1080p"</code>, <code>"720p"</code>, <code>"480p"</code>, <code>"360p"</code> or <code>"Auto"</code>.</td></tr>
-        <tr><td><code>vidrift:nextup-info</code></td><td class="dir">Parent → Player</td><td>Take over episodes: the Up Next card and Next button use your <code>next: { season, episode }</code>, and the in-player Episodes list steps aside. Send <code>next: null</code> on the last episode.</td></tr>
+        <tr><td><code>vidrift:nextup-info</code></td><td class="dir">Parent → Player</td><td>Take over episodes: the Up Next card and Next button use your <code>next: { season, episode, name?, still? }</code> (an https still shows on the card), and the in-player Episodes list steps aside. Send <code>next: null</code> on the last episode.</td></tr>
         <tr><td><code>vidrift:mobile-option</code></td><td class="dir">Parent → Player</td><td>Reply to a <code>mobile-panel</code> message with the chosen <code>option</code> and <code>value</code>.</td></tr>
         <tr><td><code>vidrift:fullscreen-state</code></td><td class="dir">Parent → Player</td><td>With <code>fs=parent</code>: tell the player whether your box is fullscreen (<code>on</code>). Send it on every <code>fullscreenchange</code> and once each new iframe has loaded, so the button icon, the title bar and the phone sheets follow.</td></tr>
       </tbody>
