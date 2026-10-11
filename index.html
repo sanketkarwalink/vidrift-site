@@ -699,7 +699,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
 });</pre></div>
 
     <h2 id="events">Messages</h2>
-    <p>Every message is scoped to the <code>https://embed.vidrift.net</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>.</p>
+    <p>Every message is scoped to the <code>https://embed.vidrift.net</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>. On anime titles they also carry <code>anilist: { id, episode }</code>, the AniList entry actually playing and the episode number inside it (counted from 1, so the next cour reports the next entry), <code>null</code> elsewhere. Key continue watching on it from <code>vidrift:progress</code> if your site thinks in AniList ids.</p>
     <table class="ref">
       <thead><tr><th>Type</th><th>Direction</th><th>When</th></tr></thead>
       <tbody>
