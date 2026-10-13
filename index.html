@@ -813,11 +813,12 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
   /* ══════════════════ the composer + stage ════════════════ */
   // Deliberately few. Ids, titles, posters and season counts were read from
   // TMDB on 2026-09-22, not remembered; a wrong id ships a demo that plays
-  // the wrong show.
+  // the wrong show. Inception replaced Interstellar 2026-10-13: MovieBox (Orion) dropped
+  // Interstellar, and its fallback stalled the demo. Keep picks to titles Orion carries.
   var PICKS = {
     movie: [
       { id: 1440098, t: 'Drawn Together', p: '/6rpvddXbaQPOi0fB2HKWbZ3uUSg.jpg', y: '2025' },
-      { id: 157336, t: 'Interstellar', p: '/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg', y: '2014' },
+      { id: 27205, t: 'Inception', p: '/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg', y: '2010' },
       { id: 155, t: 'The Dark Knight', p: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg', y: '2008' }
     ],
     tv: [
