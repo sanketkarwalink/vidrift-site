@@ -462,6 +462,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}</pre></div>
     <a href="#episodes">Episodes</a>
     <a href="#nextup">Auto next episode</a>
     <a href="#events">Messages</a>
+    <a href="#control">Controlling the player</a>
     <a href="#mobile">Mobile sheet</a>
     <a href="#notes">Notes &amp; limits</a>
   </nav>
@@ -627,10 +628,17 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
         <tr><td><code>vidrift:exit</code></td><td class="dir">Player → Parent</td><td>The viewer clicked the Exit button (<code>?exit=1</code>). Close or navigate away from the player on your side; the player does nothing else.</td></tr>
         <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code>, <code>options</code> and <code>current</code>.</td></tr>
         <tr><td><code>vidrift:fullscreen</code></td><td class="dir">Player → Parent</td><td>With <code>fs=parent</code>: the viewer pressed the fullscreen button, <code>F</code> or double-clicked. <code>on</code> is <code>true</code> to enter, <code>false</code> to leave. Call <code>requestFullscreen()</code> on the element around the iframe right away, inside the message handler, so the viewer's click still counts.</td></tr>
+        <tr><td><code>vidrift:state</code></td><td class="dir">Player → Parent</td><td>After your page sends <code>vidrift:get-state</code>: right away, then again whenever anything in it changes. See <a class="lk" href="#control">Controlling the player</a>.</td></tr>
+        <tr><td><code>vidrift:command-error</code></td><td class="dir">Player → Parent</td><td>A command could not be carried out. Adds <code>command</code>, <code>field</code> and <code>reason</code>.</td></tr>
+        <tr><td><code>vidrift:play</code> · <code>vidrift:pause</code></td><td class="dir">Parent → Player</td><td>Play or pause.</td></tr>
+        <tr><td><code>vidrift:skip</code></td><td class="dir">Parent → Player</td><td>Move by <code>seconds</code>, negative to go back.</td></tr>
+        <tr><td><code>vidrift:set</code></td><td class="dir">Parent → Player</td><td>Change volume, speed, server, quality, audio, subtitles, their look or their sync.</td></tr>
+        <tr><td><code>vidrift:cast</code></td><td class="dir">Parent → Player</td><td>Start casting; needs one click inside the player.</td></tr>
+        <tr><td><code>vidrift:get-state</code></td><td class="dir">Parent → Player</td><td>Ask for <code>vidrift:state</code> and keep it coming.</td></tr>
         <tr><td><code>vidrift:resume</code></td><td class="dir">Parent → Player</td><td>Seek to <code>currentTime</code> in seconds. Safe to send before the video is ready; it is applied once it is.</td></tr>
         <tr><td><code>vidrift:quality-preference</code></td><td class="dir">Parent → Player</td><td>Pin a rendition: <code>label</code> is <code>"1080p"</code>, <code>"720p"</code>, <code>"480p"</code>, <code>"360p"</code> or <code>"Auto"</code>.</td></tr>
         <tr><td><code>vidrift:exit-control</code></td><td class="dir">Parent → Player</td><td>With <code>exit=1</code> in the URL: <code>show: false</code> hides the player's Back arrow, <code>show: true</code> brings it back, without changing the URL. For a page that draws its own back control on some layouts (a phone header above the player) and leaves it to the player on others; send it on load and whenever the layout changes.</td></tr>
-        <tr><td><code>vidrift:title-control</code></td><td class="dir">Parent → Player</td><td><code>show: false</code> takes the title and episode line out of the player's top bar (same as <code>hide=title</code>), <code>show: true</code> puts them back. For a page that prints the title itself on some layouts; send it on load and whenever the layout changes.</td></tr>
+        <tr><td><code>vidrift:title-control</code></td><td class="dir">Parent → Player</td><td><code>show: false</code> takes the title and episode line out of the player's top bar outside fullscreen, <code>show: true</code> puts them back. In fullscreen your page is not on screen, so the player shows them there anyway; <code>hide=title</code> removes them everywhere. For a page that prints the title itself on some layouts; send it on load and whenever the layout changes.</td></tr>
         <tr><td><code>vidrift:nextup-info</code></td><td class="dir">Parent → Player</td><td>Take over episodes: the Up Next card and Next button use your <code>next: { season, episode, name?, still? }</code> (an https still shows on the card), and the in-player Episodes list steps aside. Send <code>next: null</code> on the last episode.</td></tr>
         <tr><td><code>vidrift:mobile-option</code></td><td class="dir">Parent → Player</td><td>Reply to a <code>mobile-panel</code> message with the chosen <code>option</code> and <code>value</code>.</td></tr>
         <tr><td><code>vidrift:fullscreen-state</code></td><td class="dir">Parent → Player</td><td>With <code>fs=parent</code>: tell the player whether your box is fullscreen (<code>on</code>). Send it on every <code>fullscreenchange</code> and once each new iframe has loaded, so the button icon, the title bar and the phone sheets follow.</td></tr>
@@ -644,6 +652,77 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
     <span class="tk-key">case</span> <span class="tk-str">"vidrift:ended"</span>:    <span class="tk-fn">markWatched</span>(e.data.tmdbId);         <span class="tk-key">break</span>;
   }
 });</pre></div>
+
+    <h2 id="control">Controlling the player</h2>
+    <p>Your page can drive the player and read everything its menus offer. Pause it while a menu of yours is open, or move Quality, Server, Audio and Subtitles into your own sidebar and take them out of the player with <code>hide=settings,subtitles,server</code>. Commands are messages to the iframe. The player answers <code>vidrift:get-state</code> with <code>vidrift:state</code>, and anything it cannot do with <code>vidrift:command-error</code>.</p>
+    <table class="ref">
+      <thead><tr><th>Send</th><th>Fields</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>vidrift:play</code></td><td></td><td>Plays. Sent before the stream is ready, it lets the start go ahead.</td></tr>
+        <tr><td><code>vidrift:pause</code></td><td></td><td>Pauses. Sent before the stream is ready, the first frame waits.</td></tr>
+        <tr><td><code>vidrift:skip</code></td><td><code>seconds</code></td><td><code>10</code> forward, <code>-10</code> back. Stops at the start and the end, and flashes the seek icon on the video, as a double tap does.</td></tr>
+        <tr><td><code>vidrift:set</code></td><td>any below</td><td>Changes one field or several in one message.</td></tr>
+        <tr><td><code>vidrift:cast</code></td><td></td><td>Starts casting to a TV, with one click from the viewer (below).</td></tr>
+        <tr><td><code>vidrift:get-state</code></td><td></td><td>Answers with <code>vidrift:state</code>, then sends it again every time something in it changes. Send it once, after the iframe loads.</td></tr>
+      </tbody>
+    </table>
+    <span class="cap">vidrift:state (and what vidrift:set takes)</span>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>{
+  type: <span class="tk-str">"vidrift:state"</span>, tmdbId, mediaType, season, episode, anilist,
+  paused: <span class="tk-key">false</span>, currentTime: <span class="tk-key">812.4</span>, duration: <span class="tk-key">2884.1</span>,
+  volume: <span class="tk-key">0.8</span>, muted: <span class="tk-key">false</span>, speed: <span class="tk-key">1</span>,
+  server:   <span class="tk-str">"vela"</span>, servers:   [{ value: <span class="tk-str">"vela"</span>, label: <span class="tk-str">"Vela"</span>, state: <span class="tk-str">"ready"</span> }, …],
+  source:   <span class="tk-str">"0"</span>,    sources:   [{ value: <span class="tk-str">"0"</span>, label: <span class="tk-str">"Vela · English"</span> }, …],
+  quality:  <span class="tk-str">"2"</span>,    qualities: [{ value: <span class="tk-str">"auto"</span>, label: <span class="tk-str">"Auto"</span> }, …],
+  audio:    <span class="tk-str">"0"</span>,    audios:    [{ value: <span class="tk-str">"0"</span>, label: <span class="tk-str">"English"</span> }, …],
+  subtitle: <span class="tk-str">"en"</span>,   subtitles: [{ value: <span class="tk-str">"off"</span>, label: <span class="tk-str">"Off"</span> }, …],
+  subtitleStyle: { size: <span class="tk-key">100</span>, color: <span class="tk-str">"#ffffff"</span>, background: <span class="tk-str">"box"</span>,
+                   font: <span class="tk-str">"default"</span>, position: <span class="tk-key">0</span> },
+  subtitleOffset: <span class="tk-key">0</span>,
+  cast: <span class="tk-str">"available"</span>   <span class="tk-com">// "unavailable" | "available" | "connecting" | "connected"</span>
+}</pre></div>
+    <ul>
+      <li><code>vidrift:set</code> takes <code>volume</code> (0 to 1), <code>muted</code>, <code>speed</code> (0.25 to 4), <code>subtitleOffset</code> (seconds, −30 to 30; positive shows captions later, the "Sync to audio" control) and <code>subtitleStyle</code> with any of <code>size</code> (percent, 50 to 200), <code>color</code> (<code>#rrggbb</code>), <code>background</code> (<code>box</code> or <code>shadow</code>), <code>font</code> (<code>default</code>, <code>system</code> or <code>serif</code>) and <code>position</code> (0 to 40, how far the captions are raised).</li>
+      <li>For <code>server</code>, <code>source</code>, <code>quality</code>, <code>audio</code> and <code>subtitle</code>, send back a <code>value</code> exactly as its list gives it. <code>quality</code> also takes a label, such as <code>"720p"</code>, so you can pin a rendition without reading the list. A server picked this way is remembered for the viewer, as a pick from the player's own menu is.</li>
+      <li>The lists change while a title plays: subtitles arrive, a failing server hands over to the next, and each server brings its own qualities and audio. <code>vidrift:state</code> follows all of it, so draw your menus from the latest one. <code>audios</code> is empty when there is only one track. A server's <code>state</code> is <code>"ready"</code> once it has played here, <code>"failed"</code> if it had nothing, and empty before it is tried. <code>currentTime</code> is a snapshot; <code>vidrift:progress</code> keeps time.</li>
+    </ul>
+    <h3>When a command is refused</h3>
+    <p><code>vidrift:command-error</code> names the <code>command</code>, for <code>vidrift:set</code> the <code>field</code>, and a <code>reason</code>. The other fields of the same message still apply.</p>
+    <ul>
+      <li><code>invalid</code>: a value that is not in its list, or out of range.</li>
+      <li><code>click-required</code>: the viewer has to click inside the player first. Browsers turn sound on and open the Cast picker only from a click in the frame that plays, so unmuting can come back with this, and the video carries on muted. On some visits the player first checks the page it is embedded in; until the viewer's first click in the player, those take only <code>pause</code> and <code>get-state</code>.</li>
+      <li><code>not-ready</code>: <code>vidrift:skip</code> before the stream has loaded.</li>
+      <li><code>unavailable</code>: <code>vidrift:cast</code> with nothing to cast to. <code>cast</code> in the state tells you before you offer it.</li>
+    </ul>
+    <h3>Casting</h3>
+    <p>A device picker opens only from a click inside the player, and a message is not one. So <code>vidrift:cast</code> brings the controls up with the player's Cast button marked "Click to cast" for eight seconds (shown even with <code>hide=cast</code>), answers <code>click-required</code>, and the viewer's click on it starts casting.</p>
+    <span class="cap">Pause behind your menu, plus a quality list of your own</span>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">const</span> EMBED = <span class="tk-str">"https://embed.vidrift.net"</span>;
+<span class="tk-key">const</span> <span class="tk-fn">send</span> = (msg) =&gt; iframe.contentWindow.<span class="tk-fn">postMessage</span>(msg, EMBED);
+<span class="tk-key">let</span> state = <span class="tk-key">null</span>, wasPlaying = <span class="tk-key">false</span>;
+
+iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</span>, () =&gt; <span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:get-state"</span> }));
+<span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
+  <span class="tk-key">if</span> (e.origin !== EMBED) <span class="tk-key">return</span>;
+  <span class="tk-key">if</span> (e.data.type === <span class="tk-str">"vidrift:state"</span>) {
+    state = e.data;
+    <span class="tk-fn">drawQualityMenu</span>(state.qualities, state.quality);
+  }
+  <span class="tk-key">if</span> (e.data.type === <span class="tk-str">"vidrift:command-error"</span>) console.<span class="tk-fn">warn</span>(e.data.reason, e.data);
+});
+
+<span class="tk-key">function</span> <span class="tk-fn">openMenu</span>() {
+  wasPlaying = state &amp;&amp; !state.paused;
+  <span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:pause"</span> });
+}
+<span class="tk-key">function</span> <span class="tk-fn">closeMenu</span>() {
+  <span class="tk-key">if</span> (wasPlaying) <span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:play"</span> });
+}
+
+<span class="tk-com">// From your own buttons:</span>
+<span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:set"</span>, quality: <span class="tk-str">"720p"</span> });
+<span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:skip"</span>, seconds: <span class="tk-key">-10</span> });
+<span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:set"</span>, subtitle: <span class="tk-str">"en"</span>, subtitleStyle: { size: <span class="tk-key">120</span> } });</pre></div>
 
     <h2 id="mobile">Mobile sheet</h2>
     <p>On phones the player opens its own bottom sheet for Settings, Subtitles and Source. If you would rather render that sheet in your site's own UI, add <code>?mobileSheets=true</code> to the URL and answer the panel message. Leave the flag off and no listener is needed.</p>
