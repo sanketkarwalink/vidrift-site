@@ -375,6 +375,7 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
           <div class="opt"><span class="opt-k">Exit button <code>exit=1</code></span><label class="tog"><small>An X that sends <code>vidrift:exit</code> to your page.</small><span class="switch"><input type="checkbox" id="t-exit"><i></i></span></label></div>
 
           <div class="opt"><span class="opt-k">Title bar <code>showTitle=1</code></span><label class="tog"><small>Title top-left in windowed mode too, not only in fullscreen.</small><span class="switch"><input type="checkbox" id="t-showtitle"><i></i></span></label></div>
+          <div class="opt"><span class="opt-k">Download button <code>download=1</code></span><label class="tog"><small>A Download button in the top bar that lists the files for the title.</small><span class="switch"><input type="checkbox" id="t-download"><i></i></span></label></div>
           <div class="opt wide"><span class="opt-k">Hide controls <code>hide</code></span>
             <div class="hides" id="t-hide">
               <button class="hd" type="button" data-h="progress">Progress</button>
@@ -464,6 +465,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}</pre></div>
     <a href="#autoplay">Autoplay</a>
     <a href="#episodes">Episodes</a>
     <a href="#nextup">Auto next episode</a>
+    <a href="#download">Download button</a>
     <a href="#events">Messages</a>
     <a href="#control">Controlling the player</a>
     <a href="#mobile">Mobile sheet</a>
@@ -513,6 +515,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
         <tr><td><code>watermark</code></td><td><code>1</code> or <code>https</code> URL</td><td>A small logo in the top-right corner during playback, shown only while the controls are hidden. <code>1</code> reuses <code>brandLogo</code>.</td></tr>
         <tr><td><code>showTitle</code></td><td><code>1</code></td><td>Shows the top-left title bar in windowed mode too. By default it appears only in fullscreen.</td></tr>
         <tr><td><code>exit</code></td><td><code>1</code></td><td>Adds a Back arrow at the left of the title, and an Exit button (an X) in the corner of the "Not out yet" and "won't play" screens. Clicking it sends <code>vidrift:exit</code> to your page so you can close the player screen.</td></tr>
+        <tr><td><code>download</code></td><td><code>1</code></td><td>Adds a Download button to the top bar (an icon on phones). It lists the files found for the title or episode, with resolution, type of copy, audio languages and size, and highlights the one that suits most people. A tap starts that file in a new tab, so the player keeps playing. Off by default. See <a class="lk" href="#download">Download button</a>.</td></tr>
         <tr><td><code>uiScale</code></td><td>0.5 – 2.5</td><td>Scales every control, icon and label: the bars, the menus, the Episodes view, the panels and the pause card. <code>1.5</code> for a TV screen, <code>0.85</code> for a compact box.</td></tr>
         <tr><td><code>caps</code></td><td><code>0</code></td><td>Sentence case for the small labels (eyebrows, menu headers, the episode line in the top bar), which are uppercase by default.</td></tr>
         <tr><td><code>controlBg</code></td><td><code>solid</code></td><td>A flat dark strip behind the controls instead of the gradient, for bright video.</td></tr>
@@ -556,6 +559,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
     <ul>
       <li><code>watermark=1</code> shows <code>brandLogo</code> as a small corner bug, top-right, only while the controls are hidden, so it never covers the top bar. Pass an <strong>https</strong> URL instead of <code>1</code> to use a different image.</li>
       <li><code>showTitle=1</code> keeps the title bar (top-left) visible in windowed mode, not only in fullscreen.</li>
+      <li><code>download=1</code> adds a Download button to the top bar with the files for the title. Off by default; see <a class="lk" href="#download">Download button</a>.</li>
       <li><code>exit=1</code> adds a Back arrow at the left of the title, and an Exit button in the top-right corner of the "Not out yet" and "This one won't play right now" screens. It sends <code>vidrift:exit</code> to your page and nothing more, so your page decides what leaving means: close a modal, go back, or navigate.</li>
       <li><code>hide</code> takes a comma list of controls to remove: <code>progress</code>, <code>play</code>, <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code>, <code>server</code>, <code>next</code>, <code>episodes</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>, plus <code>gradient</code> for the dark shading behind the bars and <code>pausecard</code> for the title card shown after eight seconds paused. Hiding is cosmetic: keyboard shortcuts, tap-to-seek and the phone gestures keep working, so a viewer is never locked out of playback.</li>
     </ul>
@@ -613,6 +617,12 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
     iframe.src = <span class="tk-str">`https://embed.vidrift.net/embed/tv/${e.data.tmdbId}/${e.data.season}/${e.data.episode + 1}`</span>;
   }
 });</pre></div>
+
+    <h2 id="download">Download button</h2>
+    <p>Off unless you add <code>download=1</code>. A Download button joins the top bar, beside Audio &amp; Subtitles (an icon on phones), and opens the files found for the title or episode: resolution (4K, 1080p, 720p, 480p), type of copy (BluRay, WEB-DL, REMUX, or a cinema recording, marked as one), audio languages and size. The 1080p file that suits most people is highlighted. On desktop the list opens under the bar; on phones it is a sheet, which fills the player when the player is short.</p>
+    <p>A tap looks up where that file is right now and starts it in a new tab, so your page and the player stay where they are. Files come from third-party storage, not from VidRift, and a link that has expired says so on its own row. Nothing to configure beyond the parameter.</p>
+    <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/438631?download=1
+https://embed.vidrift.net/embed/tv/1399/1/1?download=1</pre></div>
 
     <h2 id="events">Messages</h2>
     <p>Every message is scoped to the <code>https://embed.vidrift.net</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>. On anime titles they also carry <code>anilist: { id, mal, episode }</code>, the AniList entry actually playing (with its MyAnimeList id) and the episode number inside it (counted from 1, so the next cour reports the next entry), <code>null</code> elsewhere. Key continue watching on it from <code>vidrift:progress</code> if your site thinks in AniList ids.</p>
@@ -927,7 +937,7 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
       (cur.kind === 'movie' ? '' : '/' + cur.season + '/' + cur.episode);
   }
   // Everything the panel controls, in the order the URL prints it.
-  var tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, scale: '', bg: '', font: '', muted: false, noauto: false };
+  var tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, download: false, scale: '', bg: '', font: '', muted: false, noauto: false };
   function buildUrl() {
     var q = [];
     // A typed-in id has no known title; the player fetches its own metadata.
@@ -940,6 +950,7 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     if (tune.hide.length) q.push('hide=' + tune.hide.join(','));
     if (tune.showTitle) q.push('showTitle=1');
     if (tune.exit) q.push('exit=1');
+    if (tune.download) q.push('download=1');
     if (tune.scale) q.push('uiScale=' + tune.scale);
     if (tune.bg) q.push('controlBg=' + tune.bg);
     if (tune.font) q.push('font=' + encodeURIComponent(tune.font));
@@ -1151,6 +1162,7 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
   $('t-watermark').addEventListener('change', function () { tune.watermark = this.checked; tuned(true); });
   $('t-showtitle').addEventListener('change', function () { tune.showTitle = this.checked; tuned(true); });
   $('t-exit').addEventListener('change', function () { tune.exit = this.checked; tuned(true); });
+  $('t-download').addEventListener('change', function () { tune.download = this.checked; tuned(true); });
   $('t-muted').addEventListener('change', function () { tune.muted = this.checked; tuned(true); });
   $('t-noauto').addEventListener('change', function () { tune.noauto = this.checked; tuned(true); });
   $('t-font').addEventListener('change', function () { tune.font = this.value; tuned(true); });
@@ -1183,9 +1195,9 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     });
   });
   $('tune-reset').addEventListener('click', function () {
-    tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, scale: '', bg: '', font: '', muted: false, noauto: false };
+    tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, download: false, scale: '', bg: '', font: '', muted: false, noauto: false };
     $('t-brand').value = $('t-logo').value = $('t-poster').value = $('t-font').value = '';
-    $('t-watermark').checked = $('t-showtitle').checked = $('t-exit').checked = $('t-muted').checked = $('t-noauto').checked = false;
+    $('t-watermark').checked = $('t-showtitle').checked = $('t-exit').checked = $('t-download').checked = $('t-muted').checked = $('t-noauto').checked = false;
     document.querySelectorAll('#t-scale button,#t-bg button').forEach(function (b) { b.classList.toggle('on', b.dataset.s === '' || b.dataset.b === ''); }); $('t-watermark').disabled = true;
     document.querySelectorAll('#t-hide .hd').forEach(function (b) { b.classList.remove('on'); });
     setColor('');
