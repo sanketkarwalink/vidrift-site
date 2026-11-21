@@ -5,269 +5,281 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VidRift — free video embed for movies, TV and anime</title>
 <meta name="description" content="One iframe URL plays any movie, series or anime by TMDB or AniList id. No key, no signup. Adaptive HLS, subtitles, auto next and an episode list are in the player; the look is yours from the query string.">
-<meta name="theme-color" content="#0b0b0d">
+<meta name="theme-color" content="#0c0c0e">
 <link rel="canonical" href="https://vidrift.net/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="VidRift — free video embed API">
 <meta property="og:description" content="One iframe URL, every title. No key, no signup.">
 <meta property="og:url" content="https://vidrift.net/">
 <meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0c0e'/%3E%3Cpath d='M7 9h4.6l3.9 9.6L19.4 9H24l-6.4 14h-4.2z' fill='%23f4f3ef'/%3E%3Ccircle cx='25' cy='21.5' r='2.5' fill='%23E50914'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://embed.vidrift.net">
 <link rel="preconnect" href="https://image.tmdb.org">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Manrope:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://embed.vidrift.net">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Tokens are the player's own (server.js PLAYER_CSS): near-black, paper ink,
-   hairlines, one red kept for the brand mark and the active state. */
+/* Near-black, paper ink, hairlines, one red for the brand mark. The player's
+   own palette, so the page and the iframe read as one product. */
 :root{
-  --bg:#0b0b0d;--surface:#111114;--surface-2:#18181c;
-  --paper:#f2f1ed;--ink:#f2f1ed;--ink-2:#b9b6b0;--ink-3:#77747a;
-  --hair:rgba(255,255,255,.12);--hair-soft:rgba(255,255,255,.07);--hair-strong:rgba(255,255,255,.28);
+  --bg:#0c0c0e;--surface:#141416;--surface-2:#1d1d21;
+  --paper:#f4f3ef;--ink:#f4f3ef;--ink-2:#b7b4ae;--ink-3:#807d83;
+  --hair:rgba(255,255,255,.11);--hair-soft:rgba(255,255,255,.065);--hair-strong:rgba(255,255,255,.3);
   --brand:#E50914;--brand-rgb:229,9,20;--ok:#2FBF71;
-  --display:'Space Grotesk',ui-sans-serif,sans-serif;
-  --body:'Manrope',ui-sans-serif,system-ui,sans-serif;
-  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
-  --shell:min(1120px,100% - 48px);
-  --col:220px;--gap:48px;
-  --r:6px;--r-lg:10px;
+  --sans:'Schibsted Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --shell:min(1200px,100% - 64px);
+  --r:8px;--r-lg:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--ink);font:500 15px/1.6 var(--body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:84px}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0}
-code,pre{font-family:var(--mono)}
-::selection{background:rgba(var(--brand-rgb),.28)}
-:focus-visible{outline:2px solid var(--paper);outline-offset:2px;border-radius:3px}
-@media(prefers-reduced-motion:reduce){*{transition:none !important}}
+code,pre{font-family:var(--mono);font-variant-ligatures:none}
+::selection{background:rgba(var(--brand-rgb),.3)}
+:focus-visible{outline:2px solid var(--paper);outline-offset:2px;border-radius:4px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
 .shell{width:var(--shell);margin-inline:auto}
-h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:-.025em;line-height:1.1}
-.lab{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.lk{color:var(--ink);border-bottom:1px solid var(--hair-strong)}
-.lk:hover{border-bottom-color:var(--ink)}
+h1,h2,h3{font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.lk{color:var(--ink);text-decoration:underline;text-decoration-color:var(--hair-strong);text-underline-offset:3px}
+.lk:hover{text-decoration-color:var(--ink)}
 
 /* buttons: paper = primary, ghost = hairline */
-.btn{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 16px;border-radius:var(--r);border:1px solid transparent;font-size:13.5px;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
-.btn-paper{background:var(--paper);color:var(--bg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 22px;border-radius:var(--r);border:1px solid transparent;font-size:15px;font-weight:650;white-space:nowrap;transition:background-color .15s,border-color .15s,color .15s}
+.btn-paper{background:var(--paper);color:#0c0c0e}
 .btn-paper:hover{background:#fff}
-.btn-ghost{border-color:var(--hair);color:var(--ink)}
-.btn-ghost:hover{border-color:var(--hair-strong)}
+.btn-ghost{border-color:var(--hair-strong);color:var(--ink)}
+.btn-ghost:hover{background:rgba(255,255,255,.07)}
+.btn-sm{height:34px;padding:0 14px;font-size:13.5px;border-radius:6px}
 .btn.done,.cp.done{background:var(--ok) !important;color:#fff !important;border-color:transparent !important}
 
 /* nav */
-.nav-wrap{position:sticky;top:0;z-index:60;background:rgba(11,11,13,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .2s}
-.nav-wrap.stuck{border-bottom-color:var(--hair-soft)}
-.nav-in{display:flex;align-items:center;height:56px}
-.logo{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.03em}
+.nav-wrap{position:sticky;top:0;z-index:60;background:rgba(12,12,14,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair-soft)}
+.nav-in{display:flex;align-items:center;height:64px;gap:8px}
+.logo{font-weight:800;font-size:21px;letter-spacing:-.045em}
 .logo em{font-style:normal;color:var(--brand)}
 .nav-spacer{flex:1}
-.pill{position:relative;display:flex;align-self:stretch}
-.pill a{display:flex;align-items:center;padding:0 12px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:color .15s}
-.pill a:hover,.pill a.active{color:var(--ink)}
-.indicator{position:absolute;bottom:-1px;left:0;height:1px;background:var(--paper);opacity:0;transition:transform .3s,width .3s,opacity .2s}
-.nav-discord{gap:7px;padding-right:0 !important}
-.nav-tag{margin-left:14px;padding-left:14px;border-left:1px solid var(--hair);font-size:13px;color:var(--ink-3);white-space:nowrap}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-links a{display:flex;align-items:center;gap:7px;height:36px;padding:0 13px;border-radius:6px;font-size:14.5px;font-weight:550;color:var(--ink-2);transition:color .15s,background-color .15s}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.active{color:var(--ink);background:rgba(255,255,255,.08)}
 
 /* pages (SPA routes) */
 .page{display:none}
 .page.active{display:block}
 
-/* hero */
-.hero{padding:64px 0 48px}
-.hero h1{font-size:clamp(32px,4.4vw,50px);max-width:20ch;letter-spacing:-.03em;line-height:1.05;margin-top:16px}
-.hero .lede{max-width:62ch;margin-top:18px;font-size:16.5px;color:var(--ink-2)}
-.hero .lede b{color:var(--ink);font-weight:600}
+/* home: the title's own artwork, blurred, lights the top of the page */
+#page-home{position:relative}
+.amb{position:absolute;top:0;left:0;right:0;height:760px;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(#000 20%,transparent);mask-image:linear-gradient(#000 20%,transparent)}
+.amb img{width:100%;height:100%;object-fit:cover;filter:blur(72px) saturate(1.25);opacity:.3;transform:scale(1.25)}
 
-/* the URL builder: type, picks, the URL itself, the real player, the snippet, the options */
-.build{margin-top:40px;display:grid;gap:10px}
-.build-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:2px;border-bottom:1px solid var(--hair)}
-.build-head p{font-size:13.5px;color:var(--ink-3)}
-.kinds{display:flex;align-items:center;gap:24px;flex-wrap:wrap;min-height:30px}
-.chips{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:var(--r)}
-.chip{height:28px;padding:0 12px;border-radius:4px;font-size:12.5px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
-.chip:hover{color:var(--ink)}
-.chip.on{background:var(--paper);color:var(--bg)}
-.picks{display:flex;align-items:center;gap:4px 16px;flex-wrap:wrap;font-size:13px}
-.picks .lab{margin-right:4px}
-.pick{color:var(--ink-2);font-weight:600;padding:2px 0;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
-.pick:hover{color:var(--ink)}
-.pick.on{color:var(--ink);border-bottom-color:var(--paper)}
-.pick small{color:var(--ink-3);font-weight:500;margin-left:6px;font-family:var(--mono);font-size:11px}
+/* studio: copy and options on the left, the real player pinned on the right */
+.studio{position:relative;display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);grid-template-areas:"copy preview" "build preview";column-gap:64px;align-items:start;padding:64px 0 96px}
+.copy{grid-area:copy}
+.preview{grid-area:preview;position:sticky;top:88px;min-width:0}
+.build{grid-area:build;min-width:0}
+.copy h1{font-size:clamp(38px,4.35vw,60px);font-weight:750;letter-spacing:-.04em;line-height:1}
+.copy .lede{margin-top:22px;font-size:18px;line-height:1.55;color:var(--ink-2)}
+.copy .lede b{color:var(--ink);font-weight:600}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
 
-.composer{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:6px 6px 6px 16px;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--surface)}
-.composer-url{display:flex;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none;font-family:var(--mono);font-size:15px;padding:8px 0;white-space:nowrap}
+/* the player */
+.stage{position:relative;aspect-ratio:16/9;background:#000;border-radius:var(--r-lg);overflow:hidden;box-shadow:0 0 0 1px var(--hair),0 30px 80px -20px rgba(0,0,0,.8)}
+.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.placeholder{position:absolute;inset:0;display:block;width:100%;overflow:hidden;background:linear-gradient(135deg,#1b1b20,#0c0c0e);color:var(--paper);text-align:left}
+.ph-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.placeholder::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82),rgba(0,0,0,.1) 46%,rgba(0,0,0,.22))}
+.play-ring{position:absolute;z-index:1;top:50%;left:50%;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:var(--paper);color:#0c0c0e;display:grid;place-items:center;box-shadow:0 10px 40px rgba(0,0,0,.5);transition:transform .15s}
+.play-ring svg{margin-left:4px}
+.placeholder:hover .play-ring{transform:scale(1.06)}
+.ph-now{position:absolute;z-index:1;left:26px;right:26px;bottom:22px}
+.ph-now strong{display:block;font-size:clamp(22px,2.5vw,32px);font-weight:750;letter-spacing:-.03em;line-height:1.1;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+.ph-now span{display:block;margin-top:5px;font-size:14.5px;color:rgba(244,243,239,.82)}
+.stage-note{margin-top:14px;font-size:13.5px;color:var(--ink-3)}
+
+/* titles to try */
+.rail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:22px}
+.pick{display:block;text-align:left;min-width:0}
+.pick img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:var(--surface);box-shadow:0 0 0 1px var(--hair);opacity:.72;transition:opacity .15s}
+.pick b{display:block;margin-top:8px;font-size:13.5px;font-weight:600;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s}
+.pick small{display:block;font-size:12.5px;color:var(--ink-3)}
+.pick:hover img,.pick.on img{opacity:1}
+.pick:hover b,.pick.on b{color:var(--ink)}
+.pick.on img{box-shadow:0 0 0 2px var(--paper)}
+
+/* the snippet */
+.snip{margin-top:44px;border:1px solid var(--hair);border-radius:var(--r-lg);background:rgba(20,20,22,.78);overflow:hidden}
+.snip-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 8px 8px 10px;border-bottom:1px solid var(--hair-soft)}
+.tabs{display:flex;gap:2px}
+.tabs button{height:30px;padding:0 11px;border-radius:6px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:color .15s,background-color .15s}
+.tabs button:hover{color:var(--ink)}
+.tabs button.on{color:var(--ink);background:rgba(255,255,255,.09)}
+.out-code{display:block;max-height:216px;font-size:12.5px;line-height:1.7;color:var(--ink-2);white-space:pre;overflow:auto;scrollbar-width:thin;padding:14px 16px}
+
+/* option groups: flat rows, a name on the left, its control on the right */
+.grp{margin-top:44px}
+.grp-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--hair)}
+.grp-head h3{font-size:17px;letter-spacing:-.02em}
+.grp>p{margin-top:12px;font-size:14px;color:var(--ink-3)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,212px);align-items:center;gap:16px;min-height:58px;padding:11px 0;border-bottom:1px solid var(--hair-soft)}
+.row.sw-row{grid-template-columns:minmax(0,1fr) auto}
+.row.stack{grid-template-columns:minmax(0,1fr)}
+.k{min-width:0}
+.k b{display:block;font-size:14.5px;font-weight:600}
+.k code{font-size:11.5px;color:var(--ink-3)}
+.k small{display:block;font-size:13px;line-height:1.45;color:var(--ink-3)}
+.row input[type=text],.row input[type=url],.row select{height:36px;width:100%;background:rgba(0,0,0,.35);border:1px solid var(--hair);border-radius:6px;padding:0 10px;color:var(--paper);font-size:13.5px}
+.row input:focus,.row select:focus{border-color:var(--paper);outline:0}
+.row input::placeholder{color:var(--ink-3)}
+.row select{-webkit-appearance:none;appearance:none;padding-right:30px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%23807d83' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+.row select option,.u-sel option{background:var(--surface-2);color:var(--paper)}
+.seg{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:6px;background:rgba(0,0,0,.35)}
+.seg button{flex:1;height:30px;padding:0 10px;border-radius:4px;font-size:13px;font-weight:600;color:var(--ink-3);transition:color .15s,background-color .15s}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--paper);color:#0c0c0e}
+.accent{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid var(--bg);padding:0;background:var(--c);box-shadow:0 0 0 1px var(--hair);transition:box-shadow .15s}
+.sw.on{box-shadow:0 0 0 2px var(--paper)}
+.sw-any{position:relative;overflow:hidden;background:conic-gradient(#f43,#fc3,#3d6,#39f,#c4f,#f43)}
+.sw-any input{position:absolute;inset:-8px;width:200%;height:200%;opacity:0;cursor:pointer}
+.hides{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.hd{height:32px;padding:0 12px;border:1px solid var(--hair);border-radius:6px;font-size:13.5px;font-weight:550;color:var(--ink-2);transition:background-color .15s,color .15s,border-color .15s}
+.hd:hover{border-color:var(--hair-strong);color:var(--ink)}
+.hd.on{background:var(--paper);border-color:var(--paper);color:#0c0c0e;text-decoration:line-through}
+.switch{position:relative;display:block;width:40px;height:24px;flex-shrink:0}
+.switch input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.switch i{position:absolute;inset:0;border-radius:999px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--hair);transition:background-color .15s}
+.switch i::after{content:'';position:absolute;top:4px;left:4px;width:16px;height:16px;border-radius:50%;background:var(--ink-2);transition:transform .18s,background-color .15s}
+.switch input:checked+i{background:var(--paper)}
+.switch input:checked+i::after{background:#0c0c0e;transform:translateX(16px)}
+.switch input:disabled{cursor:not-allowed}
+.switch input:disabled+i{opacity:.4}
+.switch input:focus-visible+i{outline:2px solid var(--paper);outline-offset:2px}
+.reset{font-size:13.5px;font-weight:600;color:var(--ink-3);transition:color .15s}
+.reset:hover{color:var(--ink)}
+
+/* the URL, with the id typed in place */
+.composer{display:flex;align-items:center;gap:10px;margin-top:14px;padding:6px 6px 6px 14px;border:1px solid var(--hair);border-radius:var(--r);background:rgba(0,0,0,.35)}
+.composer-url{flex:1;display:flex;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none;font-family:var(--mono);font-size:13px;padding:8px 0;white-space:nowrap}
 .composer-url::-webkit-scrollbar{display:none}
 .u-dim{color:var(--ink-3)}
 .u-kind{color:var(--ink)}
-.u-id{width:8ch;min-width:3ch;background:transparent;border:0;border-bottom:1px solid var(--brand);color:var(--paper);font-family:var(--mono);font-size:inherit;padding:0 1px;caret-color:var(--brand);outline:0}
+.u-id{width:8ch;min-width:3ch;background:transparent;border:0;border-bottom:1px solid var(--brand);border-radius:0;color:var(--paper);font-family:var(--mono);font-size:inherit;padding:0 1px;caret-color:var(--brand);outline:0}
 .u-id:focus{border-bottom-color:var(--paper)}
 .u-ep{display:inline-flex;align-items:center}
 .u-ep[hidden]{display:none}
-.u-sel{-webkit-appearance:none;appearance:none;background:transparent;border:0;border-bottom:1px solid var(--hair-strong);color:var(--paper);font-family:var(--mono);font-size:inherit;padding:0 14px 0 1px;cursor:pointer;outline:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%2377747a' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center}
-.u-sel option{background:var(--surface-2);color:var(--paper)}
-.composer-actions{display:flex;gap:6px}
+.u-sel{-webkit-appearance:none;appearance:none;background:transparent;border:0;border-bottom:1px solid var(--hair-strong);border-radius:0;color:var(--paper);font-family:var(--mono);font-size:inherit;padding:0 14px 0 1px;cursor:pointer;outline:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%23807d83' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center}
 
-.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;border:1px solid var(--hair);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
-.stage-frame{position:relative;aspect-ratio:16/9;background:#000}
-.stage-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.placeholder{position:absolute;inset:0;display:grid;place-items:center;width:100%;overflow:hidden;background:#000;color:var(--paper)}
-.ph-bg{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(24px);opacity:.35}
-.ph-in{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px}
-.play-ring{width:56px;height:56px;border-radius:50%;background:var(--paper);color:var(--bg);display:grid;place-items:center}
-.play-ring svg{margin-left:3px}
-.ph-text{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
-.side{display:flex;flex-direction:column;min-width:0;border-left:1px solid var(--hair)}
-.side-now{padding:16px 18px 14px;border-bottom:1px solid var(--hair)}
-.side-now strong{display:block;font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.side-now .lab{display:block;margin-top:4px}
-.side-out{flex:1;display:flex;flex-direction:column;gap:10px;min-height:0;padding:14px 18px 16px}
-.out-tabs{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:var(--r);align-self:start}
-.out-tabs button{height:26px;padding:0 10px;border-radius:4px;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
-.out-tabs button:hover{color:var(--ink)}
-.out-tabs button.on{background:var(--paper);color:var(--bg)}
-.out-code{flex:0 0 auto;max-height:220px;font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--ink-2);white-space:pre;overflow:auto;scrollbar-width:thin;padding:10px 12px;border:1px solid var(--hair-soft);border-radius:var(--r);background:var(--bg)}
-.side .btn{width:100%}
-.live{display:inline-flex;align-items:center;gap:7px;margin-top:auto}
-.live i{width:6px;height:6px;border-radius:50%;background:var(--ok)}
-
-/* options: one grid, one cell per parameter, the URL rewrites live */
-.opts{border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
-.opts-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--hair)}
-.opts-head p{font-size:13px;color:var(--ink-3)}
-.opts-head .lab{color:var(--ink-2);margin-right:14px}
-.tune-reset{height:26px;padding:0 10px;border:1px solid var(--hair);border-radius:4px;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,border-color .15s}
-.tune-reset:hover{color:var(--ink);border-color:var(--hair-strong)}
-.opts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 0 -1px}
-.opt{display:grid;gap:10px;align-content:start;padding:14px 18px 16px;border-right:1px solid var(--hair-soft);border-bottom:1px solid var(--hair-soft);min-width:0}
-.opt:nth-child(4n){border-right:0}
-.opt.wide{grid-column:2/-1;border-right:0}
-.opt-k{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;font-weight:600;color:var(--ink)}
-.opt-k code{font-size:11px;color:var(--ink-3)}
-.opt input[type=text],.opt input[type=url],.opt select{height:34px;width:100%;background:var(--bg);border:1px solid var(--hair);border-radius:var(--r);padding:0 10px;color:var(--paper);font-family:var(--mono);font-size:12.5px}
-.opt input:focus,.opt select:focus{border-color:var(--paper);outline:0}
-.opt input::placeholder{color:var(--ink-3)}
-.opt select{-webkit-appearance:none;appearance:none;padding-right:30px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1 2.5l3 3 3-3' fill='none' stroke='%2377747a' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
-.opt select option{background:var(--surface-2);color:var(--paper)}
-.seg{display:flex;gap:2px;padding:2px;border:1px solid var(--hair);border-radius:var(--r);background:var(--bg)}
-.seg button{flex:1;height:28px;border-radius:4px;font-size:12px;font-weight:700;color:var(--ink-3);transition:color .15s,background .15s}
-.seg button:hover{color:var(--ink)}
-.seg button.on{background:var(--paper);color:var(--bg)}
-.accent{display:flex;align-items:center;gap:6px;height:34px}
-.sw{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:border-color .15s}
-.sw.on{border-color:var(--paper)}
-.sw-any{position:relative;overflow:hidden;background:conic-gradient(#f43,#fc3,#3d6,#39f,#c4f,#f43)}
-.sw-any input{position:absolute;inset:-8px;width:200%;height:200%;opacity:0;cursor:pointer}
-.hides{display:flex;flex-wrap:wrap;gap:5px}
-.hd{height:28px;padding:0 10px;border:1px solid var(--hair);border-radius:4px;font-size:12px;font-weight:600;color:var(--ink-2);transition:background .15s,color .15s,border-color .15s}
-.hd:hover{border-color:var(--hair-strong);color:var(--ink)}
-.hd.on{background:var(--paper);border-color:var(--paper);color:var(--bg);text-decoration:line-through}
-.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px;font-size:13px;color:var(--ink-2)}
-.tog small,.opt .hint{display:block;font-size:12px;color:var(--ink-3);line-height:1.45}
-.switch{position:relative;width:36px;height:20px;flex-shrink:0}
-.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
-.switch i{position:absolute;inset:0;border-radius:999px;background:var(--surface-2);border:1px solid var(--hair);transition:background .15s,border-color .15s}
-.switch i::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:var(--ink-2);transition:transform .2s,background .15s}
-.switch input:checked+i{background:var(--paper);border-color:var(--paper)}
-.switch input:checked+i::after{background:var(--bg);transform:translateX(16px)}
-.switch input:disabled+i{opacity:.4}
-
-/* sections: a label column, a content column, one hairline between sections */
-.sec{display:grid;grid-template-columns:var(--col) minmax(0,1fr);gap:var(--gap);padding:56px 0;border-top:1px solid var(--hair)}
-.sec>h2{font-size:20px;letter-spacing:-.02em;align-self:start;position:sticky;top:80px}
-.sec>h2 small{display:block;margin-top:6px;font:500 13px/1.5 var(--body);color:var(--ink-3);letter-spacing:0}
-.sec-body{min-width:0;max-width:720px}
-.sec-body>p{color:var(--ink-2)}
-.sec-body>p+*{margin-top:18px}
-
-/* definition rows */
-.dl{display:grid;grid-template-columns:200px minmax(0,1fr);border-top:1px solid var(--hair)}
-.dl dt{padding:13px 16px 13px 0;font-weight:600;border-bottom:1px solid var(--hair-soft)}
-.dl dd{padding:13px 0;color:var(--ink-2);border-bottom:1px solid var(--hair-soft)}
-.dl code{font-size:12px;color:var(--ink)}
-
-/* questions */
-.qa{display:grid;grid-template-columns:260px minmax(0,1fr);gap:0 24px;border-top:1px solid var(--hair)}
-.qa dt{padding:16px 0;font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.015em;border-bottom:1px solid var(--hair-soft)}
-.qa dd{padding:17px 0;color:var(--ink-2);border-bottom:1px solid var(--hair-soft);max-width:60ch}
+/* sections under the studio */
+.sec{padding:88px 0;border-top:1px solid var(--hair)}
+.sec-head{max-width:640px}
+.sec-head h2{font-size:clamp(24px,2.5vw,32px)}
+.sec-head p{margin-top:12px;font-size:17px;color:var(--ink-2)}
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 48px;margin-top:40px}
+.feat{padding:22px 0 24px;border-top:1px solid var(--hair)}
+.feat h3{font-size:16.5px;letter-spacing:-.015em}
+.feat p{margin-top:8px;font-size:15px;color:var(--ink-2)}
+.feat code,.qa code,.sec-head code,.duo code{font-size:.85em;color:var(--ink)}
+.duo{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}
+.duo .sec-head p+p{margin-top:14px}
+.duo ul{list-style:none;margin-top:22px;border-top:1px solid var(--hair)}
+.duo li{padding:13px 0;border-bottom:1px solid var(--hair-soft);font-size:15px;color:var(--ink-2)}
+.duo li b{color:var(--ink);font-weight:600}
+.duo .btn{margin-top:28px}
+.qa{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 64px;margin-top:40px}
+.qa div{padding:24px 0 26px;border-top:1px solid var(--hair)}
+.qa h3{font-size:17.5px;letter-spacing:-.015em}
+.qa p{margin-top:9px;font-size:15.5px;color:var(--ink-2)}
 
 /* code blocks */
 .codeblock{position:relative;border:1px solid var(--hair);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
-.codeblock pre{font-size:12.5px;line-height:1.7;color:var(--ink-2);padding:16px 18px;overflow-x:auto;scrollbar-width:thin;tab-size:2}
-.codeblock .cp{position:absolute;top:8px;right:8px;height:26px;padding:0 10px;border-radius:4px;border:1px solid var(--hair);background:var(--bg);font-size:12px;font-weight:700;color:var(--ink-2);transition:border-color .15s,color .15s}
+.codeblock pre{font-size:13px;line-height:1.7;color:var(--ink-2);padding:18px 20px;overflow-x:auto;scrollbar-width:thin;tab-size:2}
+.codeblock .cp{position:absolute;top:10px;right:10px;height:28px;padding:0 11px;border-radius:6px;border:1px solid var(--hair);background:var(--bg);font-size:12.5px;font-weight:600;color:var(--ink-2);transition:border-color .15s,color .15s}
 .codeblock .cp:hover{border-color:var(--hair-strong);color:var(--ink)}
-.codeblock+.codeblock,.cap+.codeblock{margin-top:8px}
-.cap{display:block;margin-top:20px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.codeblock+.codeblock,.cap+.codeblock{margin-top:10px}
+.cap{display:block;margin-top:22px;font-size:13.5px;font-weight:600;color:var(--ink-3)}
+.duo .cap:first-child{margin-top:0}
 .tk-tag{color:var(--ink-2)}.tk-atr{color:var(--ink-3)}.tk-str{color:var(--paper)}.tk-com{color:var(--ink-3)}.tk-key{color:#e2a35c}.tk-fn{color:#8fc2e8}
 
 /* footer */
-footer{border-top:1px solid var(--hair);padding:22px 0 28px}
-.foot{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--ink-3)}
-.foot a{color:var(--ink-2)}
+footer{border-top:1px solid var(--hair);padding:28px 0 36px}
+.foot{display:flex;align-items:center;gap:8px 26px;flex-wrap:wrap;font-size:14.5px;color:var(--ink-3)}
+.foot a{color:var(--ink-2);transition:color .15s}
 .foot a:hover{color:var(--ink)}
 .foot .sp{flex:1}
-.foot-note{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.foot-note{margin-top:14px;font-size:13px;color:var(--ink-3)}
 
 /* docs */
-.docs-wrap{display:grid;grid-template-columns:var(--col) minmax(0,1fr);gap:var(--gap);padding:56px 0 72px}
-.toc{position:sticky;top:80px;align-self:start}
-.toc h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;font-weight:500}
-.toc a{display:block;padding:6px 0 6px 12px;font-size:13.5px;color:var(--ink-3);border-left:1px solid var(--hair);transition:color .15s,border-color .15s}
+.docs-wrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:72px;padding:64px 0 96px}
+.toc{position:sticky;top:96px;align-self:start}
+.toc a{display:block;padding:6px 0 6px 14px;font-size:14.5px;color:var(--ink-3);border-left:1px solid var(--hair);transition:color .15s,border-color .15s}
 .toc a:hover{color:var(--ink)}
 .toc a.on{color:var(--ink);border-left-color:var(--paper)}
-.doc{max-width:720px;min-width:0}
-.doc h1{font-size:clamp(30px,4vw,42px);letter-spacing:-.03em;margin-top:10px}
-.doc .lede{font-size:16.5px;color:var(--ink-2);margin-top:16px}
-.doc h2{font-size:22px;letter-spacing:-.02em;margin-top:64px;padding-top:24px;border-top:1px solid var(--hair);scroll-margin-top:84px}
-.doc h3{font-size:15px;margin-top:28px;font-family:var(--body);font-weight:700}
-.doc p{margin-top:12px;color:var(--ink-2)}
-.doc ul{margin:12px 0 0 18px;color:var(--ink-2)}
-.doc li{margin-top:5px}
-.doc li strong{color:var(--ink)}
-.doc code{font-size:12.5px;color:var(--ink);padding:1px 5px;border-radius:4px;background:var(--surface);border:1px solid var(--hair-soft)}
-.doc .codeblock{margin-top:12px}
-.doc .cap{margin-top:18px}
-.note{margin-top:16px;padding:12px 16px;border-left:2px solid var(--brand);background:var(--surface);border-radius:0 var(--r) var(--r) 0}
-.note p{margin:0;font-size:14px}
-table.ref{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
-table.ref th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:500;padding:0 12px 10px 0;border-bottom:1px solid var(--hair)}
-table.ref td{padding:11px 12px 11px 0;border-bottom:1px solid var(--hair-soft);vertical-align:top;color:var(--ink-2);line-height:1.55}
+.doc{max-width:760px;min-width:0}
+.doc h1{font-size:clamp(32px,4vw,46px);font-weight:750;letter-spacing:-.035em}
+.doc .lede{font-size:18px;color:var(--ink-2);margin-top:18px}
+.doc h2{font-size:24px;margin-top:64px;padding-top:28px;border-top:1px solid var(--hair)}
+.doc h3{font-size:16.5px;margin-top:30px;letter-spacing:-.01em}
+.doc p{margin-top:13px;color:var(--ink-2)}
+.doc ul{margin:13px 0 0 18px;color:var(--ink-2)}
+.doc li{margin-top:6px}
+.doc li strong{color:var(--ink);font-weight:600}
+.doc code{font-size:13px;color:var(--ink);padding:1px 5px;border-radius:4px;background:var(--surface);border:1px solid var(--hair-soft)}
+.doc .codeblock{margin-top:13px}
+.note{margin-top:18px;padding:13px 17px;border-left:2px solid var(--brand);background:var(--surface);border-radius:0 var(--r) var(--r) 0}
+.note p{margin:0;font-size:15px}
+.tbl{overflow-x:auto;margin-top:18px}
+table.ref{width:100%;border-collapse:collapse;font-size:15px}
+table.ref th{text-align:left;font-size:13.5px;font-weight:600;color:var(--ink-3);padding:0 14px 10px 0;border-bottom:1px solid var(--hair)}
+table.ref td{padding:12px 14px 12px 0;border-bottom:1px solid var(--hair-soft);vertical-align:top;color:var(--ink-2);line-height:1.55}
 table.ref td:first-child,table.ref td:nth-child(2){white-space:nowrap}
-table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink-3);white-space:nowrap}
+table.ref .dir{font-size:13.5px;color:var(--ink-3);white-space:nowrap}
 
 /* responsive */
-@media(max-width:980px){
-  .stage{grid-template-columns:minmax(0,1fr)}
-  .side{border-left:0;border-top:1px solid var(--hair)}
-  .out-code{min-height:0}
-  .opts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .opt:nth-child(4n){border-right:1px solid var(--hair-soft)}
-  .opt:nth-child(2n){border-right:0}
-  .opt.wide{grid-column:1/-1}
-  .sec,.docs-wrap{grid-template-columns:minmax(0,1fr);gap:20px}
-  .sec>h2{position:static}
-  .toc{position:static;display:flex;flex-wrap:wrap;gap:4px}
-  .toc h4{width:100%}
-  .toc a{border:1px solid var(--hair);border-radius:4px;padding:5px 9px;font-size:13px}
+@media(max-width:1080px){
+  .studio{grid-template-columns:minmax(0,1fr);grid-template-areas:"copy" "preview" "build";padding:48px 0 72px}
+  .preview{position:static;margin-top:36px}
+  .copy h1{max-width:16ch}
+  .copy .lede{max-width:60ch}
+  .snip{margin-top:36px}
+  .duo{grid-template-columns:minmax(0,1fr);gap:36px}
+  .docs-wrap{grid-template-columns:minmax(0,1fr);gap:28px;padding-top:40px}
+  .toc{position:static;display:flex;gap:6px;margin-inline:calc((100vw - 100%)/-2);padding-inline:calc((100vw - 100%)/2);overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+  .toc::-webkit-scrollbar{display:none}
+  .toc a{flex:none;border:1px solid var(--hair);border-radius:6px;padding:6px 11px;font-size:14px}
   .toc a.on{border-color:var(--paper)}
 }
-@media(max-width:900px){.nav-tag{display:none}}
+@media(max-width:860px){
+  .feats{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}
+}
 @media(max-width:640px){
-  :root{--shell:min(1120px,100% - 32px)}
-  .hero{padding:40px 0 32px}
-  .composer{grid-template-columns:minmax(0,1fr);padding:10px 12px 10px}
-  .composer-actions .btn{flex:1}
-  .opts-grid{grid-template-columns:minmax(0,1fr)}
-  .opt,.opt:nth-child(4n){border-right:0}
-  .dl,.qa{grid-template-columns:minmax(0,1fr)}
-  .dl dt{padding-bottom:0;border-bottom:0}
-  .dl dd{padding-top:4px}
-  .qa dt{padding-bottom:0;border-bottom:0}
-  .qa dd{padding-top:6px}
-  .sec{padding:40px 0}
+  :root{--shell:calc(100% - 32px)}
+  .nav-in{height:56px}
+  .nav-links a{padding:0 10px}
+  .studio{padding:36px 0 56px}
+  .copy .lede{font-size:17px;margin-top:18px}
+  .cta{margin-top:24px}
+  .cta .btn{flex:1}
+  .preview{margin-top:30px}
+  .stage{border-radius:10px}
+  .play-ring{width:60px;height:60px;margin:-30px 0 0 -30px}
+  .ph-now{left:16px;right:16px;bottom:14px}
+  .ph-now span{font-size:13.5px}
+  /* a swipeable row that bleeds to the screen edge */
+  .rail{display:flex;gap:10px;margin:18px -16px 0;padding:2px 16px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-inline:16px;overscroll-behavior-x:contain}
+  .rail::-webkit-scrollbar{display:none}
+  .pick{flex:0 0 132px;scroll-snap-align:start}
+  .row{grid-template-columns:minmax(0,1fr) minmax(0,172px)}
+  .sec{padding:56px 0}
+  .sec-head p{font-size:16px}
+  .feats,.qa{grid-template-columns:minmax(0,1fr);margin-top:28px}
+  .codeblock pre{font-size:12.5px;padding:46px 16px 16px}
+  .u-host{display:none}
+  table.ref td:nth-child(2){white-space:normal}
 }
 </style>
 </head>
@@ -275,15 +287,13 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 
 <div class="nav-wrap" id="nav">
   <div class="shell nav-in">
-    <a href="/" class="logo" data-nav="home">vidrift<em>.</em></a>
-    <span class="nav-tag">Free video embed for movies, TV and anime</span>
+    <a href="/" class="logo" data-nav="home" aria-label="VidRift home">vidrift<em>.</em></a>
     <div class="nav-spacer"></div>
-    <nav class="pill" id="pill">
-      <div class="indicator" id="indicator"></div>
-      <a href="/" data-page="home" class="active">Home</a>
+    <nav class="nav-links" id="pill">
+      <a href="/" data-page="home" class="active">Player</a>
       <a href="/docs" data-page="docs">Docs</a>
-      <a class="nav-discord" href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.054C1.483 8.073.666 11.678.998 15.226a.074.074 0 0 0 .028.057 19.926 19.926 0 0 0 5.996 3.03.077.077 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.37 13.37 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .027-.058c.39-4.009-.654-7.583-2.677-10.802a.06.06 0 0 0-.034-.055zM8.02 12.882c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.953 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952zm7.956 0c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.954 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952z"/></svg>Discord
+      <a href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.054C1.483 8.073.666 11.678.998 15.226a.074.074 0 0 0 .028.057 19.926 19.926 0 0 0 5.996 3.03.077.077 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.37 13.37 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .027-.058c.39-4.009-.654-7.583-2.677-10.802a.06.06 0 0 0-.034-.055zM8.02 12.882c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.953 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952zm7.956 0c-.926 0-1.685-.88-1.685-1.952s.74-1.953 1.685-1.953c.954 0 1.689.88 1.685 1.953 0 1.072-.74 1.952-1.685 1.952z"/></svg>Discord
       </a>
     </nav>
   </div>
@@ -291,163 +301,210 @@ table.ref .dir{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color
 
 <!-- ══════════════════════════ HOME ══════════════════════════ -->
 <main class="page active" id="page-home">
+<div class="amb" aria-hidden="true"><img id="amb" alt="" src="https://image.tmdb.org/t/p/w300/qVgZu5BTx6pu4owCvVOm4zjTfOi.jpg"></div>
 
-<section class="hero" id="play">
-  <div class="shell">
-    <p class="lab">Free embed API · no key · no signup</p>
-    <h1>Movies, TV and anime, in one iframe.</h1>
-    <p class="lede">Put one iframe on your site and it plays any movie, series or anime episode by TMDB or AniList id. Adaptive HLS, subtitles, auto next and an episode list are already in the player. The look is yours from the query string.</p>
+<div class="shell studio" id="play">
+  <div class="copy">
+    <h1>Movies, TV and anime in one iframe.</h1>
+    <p class="lede"><b>Free, with no API key and no signup.</b> One URL plays any title by its TMDB or AniList id, in a full player: adaptive streaming, subtitles, episodes and auto next.</p>
+    <div class="cta">
+      <button class="btn btn-paper" id="cta-copy" type="button">Copy embed code</button>
+      <a class="btn btn-ghost" href="/docs" data-page="docs">Read the docs</a>
+    </div>
+  </div>
 
-    <div class="build">
-      <div class="build-head"><span class="lab">Build your URL</span><p>Pick a title or type a TMDB id, set the options, copy the snippet. The player below is the real one, as your visitors will see it.</p></div>
-      <div class="kinds">
-        <div class="chips" role="tablist" aria-label="Type">
+  <div class="preview">
+    <div class="stage">
+      <button class="placeholder" id="placeholder" type="button" aria-label="Play in the real player">
+        <img class="ph-bg" id="ph-bg" alt="" fetchpriority="high" src="https://image.tmdb.org/t/p/w1280/qVgZu5BTx6pu4owCvVOm4zjTfOi.jpg">
+        <span class="play-ring"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7 4 20 12 7 20"/></svg></span>
+        <span class="ph-now"><strong id="now-title">Dune</strong><span id="now-meta">Movie · 2021</span></span>
+      </button>
+      <iframe id="frame" title="VidRift player preview" style="display:none" allowfullscreen allow="autoplay; fullscreen; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+    <div class="rail" id="picks" aria-label="Titles to try"></div>
+    <p class="stage-note">The real player from embed.vidrift.net, exactly as your visitors get it. Every option on this page reloads it.</p>
+  </div>
+
+  <div class="build" id="tune">
+    <div class="snip">
+      <div class="snip-head">
+        <div class="tabs" role="tablist" aria-label="Snippet format" id="out-tabs">
+          <button class="on" data-out="html" type="button">iframe</button>
+          <button data-out="url" type="button">URL</button>
+          <button data-out="react" type="button">React</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="out-copy" type="button">Copy</button>
+      </div>
+      <code class="out-code" id="out-code"></code>
+    </div>
+
+    <section class="grp">
+      <div class="grp-head">
+        <h3>Title</h3>
+        <div class="seg" role="tablist" aria-label="Type">
           <button class="chip on" data-kind="movie" type="button">Movie</button>
           <button class="chip" data-kind="tv" type="button">TV</button>
           <button class="chip" data-kind="anime" type="button">Anime</button>
         </div>
-        <div class="picks" id="picks"></div>
       </div>
-
       <div class="composer">
         <div class="composer-url" aria-label="Embed URL">
-          <span class="u-dim">https://embed.vidrift.net/embed/</span><span class="u-kind" id="u-kind">movie</span><span class="u-dim">/</span><input class="u-id" id="u-id" value="438631" inputmode="numeric" pattern="[0-9]*" aria-label="TMDB id" spellcheck="false" autocomplete="off"><span class="u-ep" id="u-ep" hidden><span class="u-dim">/</span><select class="u-sel" id="season" aria-label="Season"></select><span class="u-dim">/</span><select class="u-sel" id="episode" aria-label="Episode"></select></span>
+          <span class="u-dim"><span class="u-host">embed.vidrift.net</span>/embed/</span><span class="u-kind" id="u-kind">movie</span><span class="u-dim">/</span><input class="u-id" id="u-id" value="438631" inputmode="numeric" pattern="[0-9]*" aria-label="TMDB id" spellcheck="false" autocomplete="off"><span class="u-ep" id="u-ep" hidden><span class="u-dim">/</span><select class="u-sel" id="season" aria-label="Season"></select><span class="u-dim">/</span><select class="u-sel" id="episode" aria-label="Episode"></select></span>
         </div>
-        <div class="composer-actions">
-          <button class="btn btn-ghost" id="hero-copy" type="button">Copy URL</button>
-          <button class="btn btn-paper" id="u-play" type="button">Play</button>
+        <button class="btn btn-paper btn-sm" id="u-play" type="button">Play</button>
+      </div>
+      <p>Type any TMDB id and press Enter, or pick a title under the player.</p>
+    </section>
+
+    <section class="grp">
+      <div class="grp-head"><h3>Branding</h3><button class="reset" id="tune-reset" type="button">Reset all</button></div>
+      <label class="row"><span class="k"><b>Your name</b><code>brand</code></span><input type="text" id="t-brand" maxlength="28" placeholder="Acme Stream" autocomplete="off" spellcheck="false"></label>
+      <div class="row"><span class="k"><b>Accent</b><code>brandColor</code></span>
+        <div class="accent" id="t-accent">
+          <button class="sw on" type="button" data-c="" style="--c:#E50914" aria-label="Default red"></button>
+          <button class="sw" type="button" data-c="00d1b2" style="--c:#00d1b2" aria-label="Teal"></button>
+          <button class="sw" type="button" data-c="ffb020" style="--c:#ffb020" aria-label="Amber"></button>
+          <button class="sw" type="button" data-c="7c5cff" style="--c:#7c5cff" aria-label="Violet"></button>
+          <button class="sw" type="button" data-c="2fbf71" style="--c:#2fbf71" aria-label="Green"></button>
+          <label class="sw sw-any" aria-label="Any colour"><input type="color" id="t-color" value="#E50914"></label>
         </div>
       </div>
+      <label class="row"><span class="k"><b>Logo</b><code>brandLogo</code></span><input type="url" id="t-logo" placeholder="https://…/logo.png" autocomplete="off" spellcheck="false"></label>
+      <label class="row"><span class="k"><b>Loading art</b><code>poster</code></span><input type="url" id="t-poster" placeholder="https://…/backdrop.jpg" autocomplete="off" spellcheck="false"></label>
+      <label class="row sw-row"><span class="k"><b>Watermark</b><small>Your logo in the corner while playing. Needs a logo.</small><code>watermark=1</code></span><span class="switch"><input type="checkbox" id="t-watermark" disabled><i></i></span></label>
+    </section>
 
-      <div class="stage">
-        <div class="stage-frame">
-          <button class="placeholder" id="placeholder" type="button" aria-label="Play in the real player">
-            <img class="ph-bg" id="ph-bg" alt="" src="https://image.tmdb.org/t/p/w342/v1tRXZ4JtD2Iv6fjkPvT4GiwslV.jpg">
-            <span class="ph-in">
-              <span class="play-ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7 4 20 12 7 20"/></svg></span>
-              <span class="ph-text">Play in the real player</span>
-            </span>
-          </button>
-          <iframe id="frame" title="VidRift player preview" style="display:none" allowfullscreen allow="autoplay; fullscreen; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        </div>
-        <aside class="side" aria-label="Embed code">
-          <div class="side-now"><strong id="now-title">Dune</strong><span class="lab" id="now-meta">Movie · TMDB 438631</span></div>
-          <div class="side-out">
-            <div class="out-tabs" role="tablist" aria-label="Snippet format">
-              <button class="on" data-out="url" type="button">URL</button>
-              <button data-out="html" type="button">iframe</button>
-              <button data-out="react" type="button">React</button>
-            </div>
-            <code class="out-code" id="out-code"></code>
-            <button class="btn btn-paper" id="out-copy" type="button">Copy</button>
-            <span class="lab live"><i></i>served from embed.vidrift.net</span>
+    <section class="grp">
+      <div class="grp-head"><h3>Look</h3></div>
+      <div class="row"><span class="k"><b>UI size</b><code>uiScale</code></span><div class="seg" id="t-scale"><button type="button" data-s="0.85">0.85</button><button type="button" class="on" data-s="">1</button><button type="button" data-s="1.25">1.25</button><button type="button" data-s="1.5">1.5</button></div></div>
+      <div class="row"><span class="k"><b>Control background</b><code>controlBg</code></span><div class="seg" id="t-bg"><button type="button" class="on" data-b="">Gradient</button><button type="button" data-b="solid">Solid</button></div></div>
+      <label class="row"><span class="k"><b>Font</b><code>font</code></span><select id="t-font"><option value="">Space Grotesk (default)</option><option>Inter</option><option>Roboto</option><option>Poppins</option><option>Montserrat</option><option>Bebas Neue</option><option>Oswald</option><option>Playfair Display</option><option>IBM Plex Sans</option></select></label>
+      <label class="row sw-row"><span class="k"><b>Sentence-case labels</b><small>The player's small labels are uppercase by default.</small><code>caps=0</code></span><span class="switch"><input type="checkbox" id="t-caps"><i></i></span></label>
+    </section>
+
+    <section class="grp">
+      <div class="grp-head"><h3>Playback</h3></div>
+      <label class="row sw-row"><span class="k"><b>Start muted</b><small>Sound stays off until the viewer taps the speaker.</small><code>muted=1</code></span><span class="switch"><input type="checkbox" id="t-muted"><i></i></span></label>
+      <label class="row sw-row"><span class="k"><b>Wait for a click</b><small>Load the source, show the first frame, play on tap.</small><code>autoplay=0</code></span><span class="switch"><input type="checkbox" id="t-noauto"><i></i></span></label>
+      <label class="row"><span class="k"><b>Subtitles on in</b><code>sub</code></span><select id="t-sub"><option value="">Viewer's choice</option><option value="en">English</option><option value="es">Spanish</option><option value="fr">French</option><option value="de">German</option><option value="pt">Portuguese</option><option value="it">Italian</option><option value="ar">Arabic</option><option value="hi">Hindi</option><option value="id">Indonesian</option><option value="tr">Turkish</option><option value="ru">Russian</option><option value="ja">Japanese</option><option value="ko">Korean</option></select></label>
+    </section>
+
+    <section class="grp">
+      <div class="grp-head"><h3>Buttons</h3></div>
+      <label class="row sw-row"><span class="k"><b>Title bar</b><small>Title top-left in windowed mode too, not only in fullscreen.</small><code>showTitle=1</code></span><span class="switch"><input type="checkbox" id="t-showtitle"><i></i></span></label>
+      <label class="row sw-row"><span class="k"><b>Exit button</b><small>A Back arrow that sends <code>vidrift:exit</code> to your page.</small><code>exit=1</code></span><span class="switch"><input type="checkbox" id="t-exit"><i></i></span></label>
+      <label class="row sw-row"><span class="k"><b>Download button</b><small>Lists the files for the title in the top bar.</small><code>download=1</code></span><span class="switch"><input type="checkbox" id="t-download"><i></i></span></label>
+      <div class="row stack"><span class="k"><b>Hide controls</b><code>hide</code></span>
+        <div>
+          <div class="hides" id="t-hide">
+            <button class="hd" type="button" data-h="progress">Progress</button>
+            <button class="hd" type="button" data-h="play">Play</button>
+            <button class="hd" type="button" data-h="volume">Volume</button>
+            <button class="hd" type="button" data-h="skip">Skip ±10s</button>
+            <button class="hd" type="button" data-h="time">Time</button>
+            <button class="hd" type="button" data-h="title">Title</button>
+            <button class="hd" type="button" data-h="server">Server</button>
+            <button class="hd" type="button" data-h="next">Next episode</button>
+            <button class="hd" type="button" data-h="episodes">Episodes</button>
+            <button class="hd" type="button" data-h="subtitles">Subtitles</button>
+            <button class="hd" type="button" data-h="settings">Settings</button>
+            <button class="hd" type="button" data-h="lock">Lock</button>
+            <button class="hd" type="button" data-h="pip">PiP</button>
+            <button class="hd" type="button" data-h="cast">Cast</button>
+            <button class="hd" type="button" data-h="fullscreen">Fullscreen</button>
+            <button class="hd" type="button" data-h="gradient">Shading</button>
+            <button class="hd" type="button" data-h="pausecard">Pause card</button>
           </div>
-        </aside>
-      </div>
-
-      <div class="opts" id="tune">
-        <div class="opts-head">
-          <p><span class="lab">Options</span>Every change rewrites the URL above and reloads the player. All of them are optional.</p>
-          <button class="tune-reset" id="tune-reset" type="button">Reset</button>
-        </div>
-        <div class="opts-grid">
-          <label class="opt"><span class="opt-k">Your name <code>brand</code></span><input type="text" id="t-brand" maxlength="28" placeholder="Acme Stream" autocomplete="off" spellcheck="false"></label>
-          <div class="opt"><span class="opt-k">Accent <code>brandColor</code></span>
-            <div class="accent" id="t-accent">
-              <button class="sw on" type="button" data-c="" style="--c:#E50914" aria-label="Default red"></button>
-              <button class="sw" type="button" data-c="00d1b2" style="--c:#00d1b2" aria-label="Teal"></button>
-              <button class="sw" type="button" data-c="ffb020" style="--c:#ffb020" aria-label="Amber"></button>
-              <button class="sw" type="button" data-c="7c5cff" style="--c:#7c5cff" aria-label="Violet"></button>
-              <button class="sw" type="button" data-c="2fbf71" style="--c:#2fbf71" aria-label="Green"></button>
-              <label class="sw sw-any" aria-label="Any colour"><input type="color" id="t-color" value="#E50914"></label>
-            </div>
-          </div>
-          <label class="opt"><span class="opt-k">Logo <code>brandLogo</code></span><input type="url" id="t-logo" placeholder="https://…/logo.png" autocomplete="off" spellcheck="false"></label>
-          <label class="opt"><span class="opt-k">Loading art <code>poster</code></span><input type="url" id="t-poster" placeholder="https://…/backdrop.jpg" autocomplete="off" spellcheck="false"></label>
-
-          <div class="opt"><span class="opt-k">UI size <code>uiScale</code></span><div class="seg" id="t-scale"><button type="button" data-s="0.85">0.85</button><button type="button" class="on" data-s="">1</button><button type="button" data-s="1.25">1.25</button><button type="button" data-s="1.5">1.5</button></div></div>
-          <div class="opt"><span class="opt-k">Control background <code>controlBg</code></span><div class="seg" id="t-bg"><button type="button" class="on" data-b="">Gradient</button><button type="button" data-b="solid">Solid</button></div></div>
-          <label class="opt"><span class="opt-k">Font <code>font</code></span><select id="t-font"><option value="">Space Grotesk · default</option><option>Inter</option><option>Roboto</option><option>Poppins</option><option>Montserrat</option><option>Bebas Neue</option><option>Oswald</option><option>Playfair Display</option><option>IBM Plex Sans</option></select></label>
-
-          <div class="opt"><span class="opt-k">Watermark <code>watermark=1</code></span><label class="tog"><small>Your logo in the corner while playing. Needs a logo.</small><span class="switch"><input type="checkbox" id="t-watermark" disabled><i></i></span></label></div>
-          <div class="opt"><span class="opt-k">Start muted <code>muted=1</code></span><label class="tog"><small>Sound stays off until the viewer taps the speaker.</small><span class="switch"><input type="checkbox" id="t-muted"><i></i></span></label></div>
-          <div class="opt"><span class="opt-k">Wait for a click <code>autoplay=0</code></span><label class="tog"><small>Load the source, show the first frame, play on tap.</small><span class="switch"><input type="checkbox" id="t-noauto"><i></i></span></label></div>
-          <div class="opt"><span class="opt-k">Exit button <code>exit=1</code></span><label class="tog"><small>An X that sends <code>vidrift:exit</code> to your page.</small><span class="switch"><input type="checkbox" id="t-exit"><i></i></span></label></div>
-
-          <div class="opt"><span class="opt-k">Title bar <code>showTitle=1</code></span><label class="tog"><small>Title top-left in windowed mode too, not only in fullscreen.</small><span class="switch"><input type="checkbox" id="t-showtitle"><i></i></span></label></div>
-          <div class="opt"><span class="opt-k">Download button <code>download=1</code></span><label class="tog"><small>A Download button in the top bar that lists the files for the title.</small><span class="switch"><input type="checkbox" id="t-download"><i></i></span></label></div>
-          <div class="opt wide"><span class="opt-k">Hide controls <code>hide</code></span>
-            <div class="hides" id="t-hide">
-              <button class="hd" type="button" data-h="progress">Progress</button>
-              <button class="hd" type="button" data-h="play">Play</button>
-              <button class="hd" type="button" data-h="volume">Volume</button>
-              <button class="hd" type="button" data-h="skip">Skip ±10s</button>
-              <button class="hd" type="button" data-h="time">Time</button>
-              <button class="hd" type="button" data-h="title">Title</button>
-              <button class="hd" type="button" data-h="server">Server</button>
-              <button class="hd" type="button" data-h="next">Next episode</button>
-              <button class="hd" type="button" data-h="episodes">Episodes</button>
-              <button class="hd" type="button" data-h="subtitles">Subtitles</button>
-              <button class="hd" type="button" data-h="settings">Settings</button>
-              <button class="hd" type="button" data-h="lock">Lock</button>
-              <button class="hd" type="button" data-h="pip">PiP</button>
-              <button class="hd" type="button" data-h="cast">Cast</button>
-              <button class="hd" type="button" data-h="fullscreen">Fullscreen</button>
-              <button class="hd" type="button" data-h="gradient">Shading</button>
-              <button class="hd" type="button" data-h="pausecard">Pause card</button>
-            </div>
-            <small class="hint">Cosmetic: keyboard shortcuts, tap to seek and the phone gestures keep working.</small>
-          </div>
+          <span class="k"><small style="margin-top:12px">Hiding is cosmetic: keyboard shortcuts, tap to seek and the phone gestures keep working.</small></span>
         </div>
       </div>
-    </div>
+    </section>
   </div>
-</section>
+</div>
 
 <div class="shell">
   <section class="sec" id="included">
-    <h2>In the player<small>Nothing to switch on.</small></h2>
-    <div class="sec-body">
-      <dl class="dl">
-        <dt>Adaptive HLS</dt><dd>hls.js ships inside the iframe. Quality steps down on a bad connection and back up when it recovers.</dd>
-        <dt>Subtitles</dt><dd>30+ languages picked up per title, with size, colour, background and timing controls. Viewers can upload their own file.</dd>
-        <dt>Episodes</dt><dd>On TV and anime an Episodes button opens the seasons and episodes in the player. A pick swaps the iframe and keeps your parameters.</dd>
-        <dt>Auto next</dt><dd>An Up Next card with the next episode's still appears as the credits start, from The Intro DB (TV) or AniSkip (anime), and plays on after five seconds.</dd>
-        <dt>Skip intro</dt><dd>A Skip button over intros, recaps and openings, from the same two sources.</dd>
-        <dt>Servers</dt><dd>Several sources per title with automatic failover. A server the viewer picks is remembered for that title, so a dub stays a dub.</dd>
-        <dt>Viewer controls</dt><dd>Screen lock, Fit / Fill / Stretch, volume boost, playback speed, picture in picture, Chromecast.</dd>
-        <dt>Pause card</dt><dd>Three seconds into a pause, the title, year, rating, genres and overview fade in over the frame.</dd>
-        <dt>Messages</dt><dd>Progress, pause, episode changes and more arrive by <code>postMessage</code>, so a page can save and resume position. See the <a class="lk" href="/docs#events" data-page="docs">messages table</a>.</dd>
-      </dl>
+    <div class="sec-head">
+      <h2>Already in the player</h2>
+      <p>Nothing to install, build or switch on. Every embed gets all of it.</p>
+    </div>
+    <div class="feats">
+      <div class="feat"><h3>Adaptive streaming</h3><p>hls.js ships inside the iframe. Quality steps down on a bad connection and back up when it recovers.</p></div>
+      <div class="feat"><h3>Subtitles</h3><p>30+ languages picked up per title, with size, colour, background and timing controls. Viewers can upload their own file.</p></div>
+      <div class="feat"><h3>Episodes</h3><p>On TV and anime an Episodes button opens the seasons and episodes in the player. A pick swaps the iframe and keeps your parameters.</p></div>
+      <div class="feat"><h3>Auto next</h3><p>An Up Next card with the next episode's still appears as the credits start, and plays on after five seconds.</p></div>
+      <div class="feat"><h3>Skip intro</h3><p>A Skip button over intros, recaps and openings, from The Intro DB for TV and AniSkip for anime.</p></div>
+      <div class="feat"><h3>Servers</h3><p>Several sources per title with automatic failover. A server the viewer picks is remembered for that title, so a dub stays a dub.</p></div>
+      <div class="feat"><h3>Viewer controls</h3><p>Screen lock, Fit / Fill / Stretch, volume boost, playback speed, hold for 2x, picture in picture and Chromecast.</p></div>
+      <div class="feat"><h3>Pause card</h3><p>Eight seconds into a pause, the title, year, rating, genres and overview fade in over the frame.</p></div>
+      <div class="feat"><h3>Phones</h3><p>Touch controls, double tap to seek and bottom sheets for the menus. Or draw those sheets in your own UI.</p></div>
     </div>
   </section>
 
   <section class="sec" id="install">
-    <h2>Install<small>One iframe is the integration.</small></h2>
-    <div class="sec-body">
-      <p>Three URL shapes. Anime takes the TV shape with the show's TMDB id, or its AniList id if that is what your site has.</p>
-      <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/{tmdb_id}
+    <div class="duo">
+      <div class="sec-head">
+        <h2>One iframe is the integration</h2>
+        <p>Three URL shapes cover everything. Anime takes the TV shape with the show's TMDB id, or its AniList id if that is what your site has.</p>
+        <p>Every parameter is optional, and a bad value is ignored rather than treated as an error, so it never breaks playback.</p>
+        <a class="btn btn-ghost" href="/docs#params" data-page="docs">All parameters</a>
+      </div>
+      <div>
+        <span class="cap">The three URLs</span>
+        <div class="codeblock"><button class="cp" type="button">Copy</button><pre>https://embed.vidrift.net/embed/movie/{tmdb_id}
 https://embed.vidrift.net/embed/tv/{tmdb_id}/{season}/{episode}
 https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}</pre></div>
-      <span class="cap">Responsive embed</span>
-      <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
+        <span class="cap">Responsive embed</span>
+        <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-tag">&lt;div</span> <span class="tk-atr">style</span>=<span class="tk-str">"position:relative;padding-bottom:56.25%;height:0"</span><span class="tk-tag">&gt;</span>
   <span class="tk-tag">&lt;iframe</span> <span class="tk-atr">src</span>=<span class="tk-str">"https://embed.vidrift.net/embed/movie/438631"</span>
     <span class="tk-atr">style</span>=<span class="tk-str">"position:absolute;inset:0;width:100%;height:100%;border:0"</span>
     <span class="tk-atr">allowfullscreen allow</span>=<span class="tk-str">"autoplay; fullscreen"</span><span class="tk-tag">&gt;&lt;/iframe&gt;</span>
 <span class="tk-tag">&lt;/div&gt;</span></pre></div>
-      <p style="margin-top:18px">Parameters, messages, the mobile sheet and page-owned fullscreen are in the <a class="lk" href="/docs" data-page="docs">docs</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="messages">
+    <div class="duo">
+      <div class="sec-head">
+        <h2>Your page stays in charge</h2>
+        <p>The player reports what happens by <code>postMessage</code> and takes commands the same way. Use as much or as little as you need.</p>
+        <ul>
+          <li><b>Continue watching.</b> Progress arrives every five seconds; send the position back to resume.</li>
+          <li><b>Your own episode list.</b> Tell the player what is next and it follows your page.</li>
+          <li><b>Your own menus.</b> Read quality, audio, subtitles and servers, and set them from your UI.</li>
+          <li><b>Your own fullscreen.</b> Swap episodes without the viewer leaving fullscreen.</li>
+        </ul>
+        <a class="btn btn-ghost" href="/docs#events" data-page="docs">All messages</a>
+      </div>
+      <div>
+        <span class="cap">One listener, every event</span>
+        <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
+  <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
+  <span class="tk-key">switch</span> (e.data.type) {
+    <span class="tk-key">case</span> <span class="tk-str">"vidrift:progress"</span>: <span class="tk-fn">save</span>(e.data.tmdbId, e.data.currentTime); <span class="tk-key">break</span>;
+    <span class="tk-key">case</span> <span class="tk-str">"vidrift:ended"</span>:    <span class="tk-fn">markWatched</span>(e.data.tmdbId);         <span class="tk-key">break</span>;
+  }
+});</pre></div>
+        <span class="cap">Commands go the other way</span>
+        <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">const</span> <span class="tk-fn">send</span> = (msg) =&gt;
+  iframe.contentWindow.<span class="tk-fn">postMessage</span>(msg, <span class="tk-str">"https://embed.vidrift.net"</span>);
+
+<span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:resume"</span>, currentTime: <span class="tk-key">812</span> });
+<span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:set"</span>, quality: <span class="tk-str">"720p"</span>, subtitle: <span class="tk-str">"en"</span> });
+<span class="tk-fn">send</span>({ type: <span class="tk-str">"vidrift:pause"</span> });</pre></div>
+      </div>
     </div>
   </section>
 
   <section class="sec" id="questions">
-    <h2>Questions</h2>
-    <div class="sec-body">
-      <dl class="qa">
-        <dt>Is it free?</dt><dd>Yes. Public embeds carry a single ad, which pays for the bandwidth. Nothing is metered, nothing expires, and there is no card to enter.</dd>
-        <dt>Do I need a key or an account?</dt><dd>No. There is no signup, no key and no domain allowlist. Build the URL, put it in an iframe, done. The only ids involved are TMDB's and AniList's, which are public.</dd>
-        <dt>Where does the content come from?</dt><dd>VidRift does not own or store the media. It indexes and relays what is already publicly reachable; metadata comes from TMDB. Takedown requests reach a human on <a class="lk" href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener">Discord</a> and are handled per title.</dd>
-        <dt>What breaks it?</dt><dd>A <code>sandbox</code> attribute on the iframe, and fetching an embed URL with a script instead of framing it. Everything else that is wrong in a URL is ignored rather than treated as an error.</dd>
-      </dl>
+    <div class="sec-head"><h2>Questions</h2></div>
+    <div class="qa">
+      <div><h3>Is it free?</h3><p>Yes. Public embeds carry a single ad, which pays for the bandwidth. Nothing is metered, nothing expires, and there is no card to enter.</p></div>
+      <div><h3>Do I need a key or an account?</h3><p>No. There is no signup, no key and no domain allowlist. Build the URL, put it in an iframe, done. The only ids involved are TMDB's and AniList's, which are public.</p></div>
+      <div><h3>Where does the content come from?</h3><p>VidRift does not own or store the media. It indexes and relays what is already publicly reachable; metadata comes from TMDB. Takedown requests reach a human on <a class="lk" href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener">Discord</a> and are handled per title.</p></div>
+      <div><h3>What breaks it?</h3><p>A <code>sandbox</code> attribute on the iframe, and fetching an embed URL with a script instead of framing it. Everything else that is wrong in a URL is ignored rather than treated as an error.</p></div>
     </div>
   </section>
 </div>
@@ -455,8 +512,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}</pre></div>
 
 <main class="page" id="page-docs">
 <div class="shell docs-wrap">
-  <nav class="toc" id="toc">
-    <h4>Contents</h4>
+  <nav class="toc" id="toc" aria-label="Contents">
     <a href="#quickstart">Quick start</a>
     <a href="#urls">URL structure</a>
     <a href="#params">Parameters</a>
@@ -473,7 +529,6 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}</pre></div>
   </nav>
 
   <article class="doc">
-    <span class="lab">Documentation</span>
     <h1>Everything the embed can do</h1>
     <p class="lede">The player is a single cross-origin iframe. Nothing to install, nothing to authenticate. Everything below is a URL parameter or a <code>postMessage</code>. That is the entire API surface.</p>
 
@@ -504,7 +559,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
 
     <h2 id="params">Parameters</h2>
     <p>Every parameter is optional and validated server-side. Anything invalid is ignored rather than treated as an error, so a bad value never breaks playback.</p>
-    <table class="ref">
+    <div class="tbl"><table class="ref">
       <thead><tr><th>Parameter</th><th>Value</th><th>What it does</th></tr></thead>
       <tbody>
         <tr><td><code>title</code></td><td>Text</td><td>Shown on the loading card while a source is being found. Without it the player looks the title up itself.</td></tr>
@@ -521,13 +576,14 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
         <tr><td><code>controlBg</code></td><td><code>solid</code></td><td>A flat dark strip behind the controls instead of the gradient, for bright video.</td></tr>
         <tr><td><code>font</code></td><td>Google Fonts family</td><td>Swaps the player's typeface, e.g. <code>font=Inter</code> or <code>font=Bebas%20Neue</code>. Letters, digits and spaces only.</td></tr>
         <tr><td><code>muted</code></td><td><code>1</code></td><td>Start muted for this load. Sound comes on when the viewer taps the speaker.</td></tr>
+        <tr><td><code>sub</code></td><td>Language code</td><td>Turns subtitles on in that language (ISO 639-1, e.g. <code>sub=ar</code>) when the viewer has not picked one themselves. Their own pick, or Off, still wins on later loads.</td></tr>
         <tr><td><code>autoplay</code></td><td><code>0</code></td><td>Do not autoplay. The player loads the source and waits for a click. Note that <em>forcing</em> autoplay with sound is not possible in any browser; the default is already the most that browsers allow.</td></tr>
         <tr><td><code>hide</code></td><td>Comma list</td><td>Hides controls: <code>progress</code>, <code>play</code> (the play/pause button), <code>volume</code>, <code>skip</code>, <code>time</code>, <code>title</code> (the title and episode line in the top bar), <code>server</code>, <code>next</code>, <code>episodes</code>, <code>subtitles</code>, <code>settings</code>, <code>lock</code>, <code>pip</code>, <code>cast</code>, <code>fullscreen</code>. Also <code>gradient</code> (the dark shading behind the top and bottom bars) and <code>pausecard</code> (the title card that comes up after eight seconds paused). Cosmetic only: keyboard shortcuts keep working.</td></tr>
         <tr><td><code>mobileSheets</code></td><td><code>true</code></td><td>On phones, delegates the Settings, Subtitles and Source panels to your own UI. See <a class="lk" href="#mobile">Mobile sheet</a>.</td></tr>
         <tr><td><code>fs</code></td><td><code>parent</code></td><td>Your page owns fullscreen. The fullscreen button sends <code>vidrift:fullscreen</code> instead of fullscreening the iframe; you fullscreen the box around it and answer <code>vidrift:fullscreen-state</code>. Lets you swap the iframe for the next episode without leaving fullscreen. See <a class="lk" href="#events">Messages</a>.</td></tr>
         <tr><td><code>dub</code></td><td><code>1</code></td><td>AniList URLs only: start on the English dub server.</td></tr>
       </tbody>
-    </table>
+    </table></div>
 
     <h2 id="ids">Finding TMDB ids</h2>
     <p>Ids come from <a class="lk" href="https://www.themoviedb.org" target="_blank" rel="noopener">themoviedb.org</a>. They are in the URL of any title page, and available through the <a class="lk" href="https://developer.themoviedb.org" target="_blank" rel="noopener">TMDB API</a>.</p>
@@ -553,6 +609,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
       <li><code>uiScale</code>: <code>1.5</code> makes every control TV-sized, <code>0.85</code> tightens a small box. Hit targets scale with it.</li>
       <li><code>controlBg=solid</code>: a flat dark strip behind the controls, for video with bright edges where the gradient is not enough.</li>
       <li><code>font</code>: any Google Fonts family name. It replaces the display and body faces in one go.</li>
+      <li><code>sub</code>: a language code such as <code>sub=es</code> turns subtitles on in that language until the viewer picks for themselves.</li>
       <li><code>muted=1</code> and <code>autoplay=0</code>: start silent, or do not start at all until the viewer clicks. By default the player autoplays muted and switches sound on at the first interaction, which is the most any browser allows.</li>
     </ul>
     <h3>During playback</h3>
@@ -584,7 +641,8 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
       <li><strong>Video size.</strong> Fit, Fill and Stretch are in the Settings menu. Fit shows the whole picture, Fill crops it to cover the player, Stretch distorts it to fill. The choice is the viewer's and is remembered in their browser, so there is no parameter for it.</li>
       <li><strong>Server.</strong> A server the viewer picks by hand is remembered for that title in their browser and leads on its other episodes, so an anime watched in dub stays in dub. A failover is never remembered, and your <code>provider</code> parameter still wins.</li>
       <li><strong>Touch.</strong> On a phone the first tap shows the controls and the centre button plays or pauses. A double tap on either side seeks 10 seconds.</li>
-      <li><strong>Pause card.</strong> Three seconds into a pause, the title, year, TMDB rating, genres and overview fade in bottom-left over the frame. It never covers the controls, and it goes the moment playback resumes or the viewer seeks. There is no parameter for it.</li>
+      <li><strong>Pause card.</strong> Eight seconds into a pause, the title, year, TMDB rating, genres and overview fade in bottom-left over the frame. It never covers the controls, and it goes the moment playback resumes or the viewer seeks. <code>hide=pausecard</code> removes it.</li>
+      <li><strong>Hold for 2x.</strong> Pressing and holding the picture for half a second plays at 2x; letting go returns to the speed the viewer had picked.</li>
     </ul>
 
     <h2 id="autoplay">Autoplay</h2>
@@ -626,7 +684,7 @@ https://embed.vidrift.net/embed/tv/1399/1/1?download=1</pre></div>
 
     <h2 id="events">Messages</h2>
     <p>Every message is scoped to the <code>https://embed.vidrift.net</code> origin. Always check <code>event.origin</code> before trusting an incoming message, and always pass the origin as the second argument when sending one. All player messages carry <code>tmdbId</code>, <code>mediaType</code>, <code>season</code> and <code>episode</code>. On anime titles they also carry <code>anilist: { id, mal, episode }</code>, the AniList entry actually playing (with its MyAnimeList id) and the episode number inside it (counted from 1, so the next cour reports the next entry), <code>null</code> elsewhere. Key continue watching on it from <code>vidrift:progress</code> if your site thinks in AniList ids.</p>
-    <table class="ref">
+    <div class="tbl"><table class="ref">
       <thead><tr><th>Type</th><th>Direction</th><th>When</th></tr></thead>
       <tbody>
         <tr><td><code>vidrift:progress</code></td><td class="dir">Player → Parent</td><td>Every 5 seconds while playing, after the first 5 seconds. Adds <code>currentTime</code> and <code>duration</code>.</td></tr>
@@ -638,6 +696,7 @@ https://embed.vidrift.net/embed/tv/1399/1/1?download=1</pre></div>
         <tr><td><code>vidrift:nextup-play</code></td><td class="dir">Player → Parent</td><td>The Up Next countdown finished, or the viewer clicked Play Next or the Next episode button. Only sent once your page has sent <code>vidrift:nextup-info</code>; otherwise the player moves on by itself.</td></tr>
         <tr><td><code>vidrift:episode</code></td><td class="dir">Player → Parent</td><td>The viewer picked an episode in the player, or Up Next moved on by itself. Carries the new <code>season</code> and <code>episode</code>; the iframe swaps right after.</td></tr>
         <tr><td><code>vidrift:ended</code></td><td class="dir">Player → Parent</td><td>Playback reached the end.</td></tr>
+        <tr><td><code>vidrift:wont-play</code></td><td class="dir">Player → Parent</td><td>Every source failed and the "This one won't play right now" screen came up. Adds <code>reason</code>. Sent once, so your page can draw its own UI for it, such as a report button.</td></tr>
         <tr><td><code>vidrift:exit</code></td><td class="dir">Player → Parent</td><td>The viewer clicked the Exit button (<code>?exit=1</code>). Close or navigate away from the player on your side; the player does nothing else.</td></tr>
         <tr><td><code>vidrift:mobile-panel</code></td><td class="dir">Player → Parent</td><td>A phone viewer opened a panel, with <code>mobileSheets=true</code>. Adds <code>panel</code>, <code>options</code> and <code>current</code>.</td></tr>
         <tr><td><code>vidrift:fullscreen</code></td><td class="dir">Player → Parent</td><td>With <code>fs=parent</code>: the viewer pressed the fullscreen button, <code>F</code> or double-clicked. <code>on</code> is <code>true</code> to enter, <code>false</code> to leave. Call <code>requestFullscreen()</code> on the element around the iframe right away, inside the message handler, so the viewer's click still counts.</td></tr>
@@ -656,7 +715,7 @@ https://embed.vidrift.net/embed/tv/1399/1/1?download=1</pre></div>
         <tr><td><code>vidrift:mobile-option</code></td><td class="dir">Parent → Player</td><td>Reply to a <code>mobile-panel</code> message with the chosen <code>option</code> and <code>value</code>.</td></tr>
         <tr><td><code>vidrift:fullscreen-state</code></td><td class="dir">Parent → Player</td><td>With <code>fs=parent</code>: tell the player whether your box is fullscreen (<code>on</code>). Send it on every <code>fullscreenchange</code> and once each new iframe has loaded, so the button icon, the title bar and the phone sheets follow.</td></tr>
       </tbody>
-    </table>
+    </table></div>
     <span class="cap">One listener, every event</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre><span class="tk-key">window</span>.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"message"</span>, (e) =&gt; {
   <span class="tk-key">if</span> (e.origin !== <span class="tk-str">"https://embed.vidrift.net"</span>) <span class="tk-key">return</span>;
@@ -668,7 +727,7 @@ https://embed.vidrift.net/embed/tv/1399/1/1?download=1</pre></div>
 
     <h2 id="control">Controlling the player</h2>
     <p>Your page can drive the player and read everything its menus offer. Pause it while a menu of yours is open, or move Quality, Server, Audio and Subtitles into your own sidebar and take them out of the player with <code>hide=settings,subtitles,server</code>. Commands are messages to the iframe. The player answers <code>vidrift:get-state</code> with <code>vidrift:state</code>, and anything it cannot do with <code>vidrift:command-error</code>.</p>
-    <table class="ref">
+    <div class="tbl"><table class="ref">
       <thead><tr><th>Send</th><th>Fields</th><th>Does</th></tr></thead>
       <tbody>
         <tr><td><code>vidrift:play</code></td><td></td><td>Plays. Sent before the stream is ready, it lets the start go ahead.</td></tr>
@@ -678,7 +737,7 @@ https://embed.vidrift.net/embed/tv/1399/1/1?download=1</pre></div>
         <tr><td><code>vidrift:cast</code></td><td></td><td>Starts casting to a TV, with one click from the viewer (below).</td></tr>
         <tr><td><code>vidrift:get-state</code></td><td></td><td>Answers with <code>vidrift:state</code>, then sends it again every time something in it changes. Send it once, after the iframe loads.</td></tr>
       </tbody>
-    </table>
+    </table></div>
     <span class="cap">vidrift:state (and what vidrift:set takes)</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>{
   type: <span class="tk-str">"vidrift:state"</span>, tmdbId, mediaType, season, episode, anilist,
@@ -689,7 +748,7 @@ https://embed.vidrift.net/embed/tv/1399/1/1?download=1</pre></div>
   quality:  <span class="tk-str">"2"</span>,    qualities: [{ value: <span class="tk-str">"auto"</span>, label: <span class="tk-str">"Auto"</span> }, …],
   audio:    <span class="tk-str">"0"</span>,    audios:    [{ value: <span class="tk-str">"0"</span>, label: <span class="tk-str">"English"</span> }, …],
   subtitle: <span class="tk-str">"en"</span>,   subtitles: [{ value: <span class="tk-str">"off"</span>, label: <span class="tk-str">"Off"</span> }, …],
-  subtitleStyle: { size: <span class="tk-key">100</span>, color: <span class="tk-str">"#ffffff"</span>, background: <span class="tk-str">"box"</span>,
+  subtitleStyle: { size: <span class="tk-key">100</span>, color: <span class="tk-str">"#ffffff"</span>, background: <span class="tk-str">"shadow"</span>,
                    font: <span class="tk-str">"default"</span>, position: <span class="tk-key">0</span> },
   subtitleOffset: <span class="tk-key">0</span>,
   cast: <span class="tk-str">"available"</span>   <span class="tk-com">// "unavailable" | "available" | "connecting" | "connected"</span>
@@ -776,7 +835,7 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
 <footer>
   <div class="shell">
     <div class="foot">
-      <a href="/" class="logo" data-nav="home">vidrift<em>.</em></a>
+      <a href="/" class="logo" data-nav="home" aria-label="VidRift home">vidrift<em>.</em></a>
       <a href="/docs" data-page="docs">Docs</a>
       <a href="/docs#events" data-page="docs">Messages</a>
       <a href="https://discord.gg/JxgRaYMVHF" target="_blank" rel="noopener noreferrer">Discord</a>
@@ -822,26 +881,16 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
   });
 
   /* ── router ──────────────────────────────────────────────── */
-  var pill = $('pill'), indicator = $('indicator');
-  var navLinks = pill.querySelectorAll('a[data-page]');
+  var navLinks = document.querySelectorAll('#pill a[data-page]');
 
-  function place(el) {
-    var w = pill.getBoundingClientRect(), r = el.getBoundingClientRect();
-    indicator.style.width = r.width + 'px';
-    indicator.style.transform = 'translateX(' + (r.left - w.left) + 'px)';
-    indicator.style.opacity = '1';
-  }
   function show(page, hash) {
-    document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
     var target = $('page-' + page) || $('page-home');
-    target.classList.add('active');
-    navLinks.forEach(function (l) { l.classList.remove('active'); });
-    var active = pill.querySelector('a[data-page="' + page + '"]');
-    if (active) { active.classList.add('active'); place(active); }
+    document.querySelectorAll('.page').forEach(function (p) { p.classList.toggle('active', p === target); });
+    navLinks.forEach(function (l) { l.classList.toggle('active', 'page-' + l.dataset.page === target.id); });
     requestAnimationFrame(function () {
       var el = hash && document.querySelector(hash);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else window.scrollTo({ top: 0, behavior: 'auto' });
+      if (el) el.scrollIntoView({ block: 'start' });
+      else window.scrollTo(0, 0);
     });
   }
   // Cloudflare Pages serves this same index.html for every path, so a deep
@@ -864,16 +913,6 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
   });
   window.addEventListener('popstate', function () { route(location.pathname, location.hash); });
   route(location.pathname, location.hash);
-
-  function reindex() { var a = pill.querySelector('a.active'); if (a) place(a); }
-  window.addEventListener('load', reindex);
-  window.addEventListener('resize', reindex);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(reindex);
-
-  var nav = $('nav');
-  var onScroll = function () { nav.classList.toggle('stuck', window.scrollY > 12); };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 
   /* ── docs TOC scrollspy (scroll-driven: the docs page starts hidden,
         and IntersectionObserver never fires for display:none) ── */
@@ -901,32 +940,31 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
 
   $('yr').textContent = new Date().getFullYear();
 
-  /* ══════════════════ the composer + stage ════════════════ */
-  // Deliberately few. Ids, titles, posters and season counts were read from
-  // TMDB on 2026-09-22, not remembered; a wrong id ships a demo that plays
-  // the wrong show. Inception replaced Interstellar 2026-10-13: MovieBox (Orion) dropped
-  // Interstellar, and its fallback stalled the demo. Keep picks to titles Orion carries.
-  // 2026-11-14: the movie picks are titles with a 4K rung and several audio languages (checked that day).
-  var PICKS = {
-    movie: [
-      { id: 438631, t: 'Dune', p: '/v1tRXZ4JtD2Iv6fjkPvT4GiwslV.jpg', y: '2021' },
-      { id: 550, t: 'Fight Club', p: '/jSziioSwPVrOy9Yow3XhWIBDjq1.jpg', y: '1999' },
-      { id: 27205, t: 'Inception', p: '/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg', y: '2010' }
-    ],
-    tv: [
-      { id: 1399, t: 'Game of Thrones', p: '/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg', y: '8 seasons', s: 8 },
-      { id: 94605, t: 'Arcane', p: '/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg', y: '2 seasons', s: 2 }
-    ],
-    anime: [
-      { id: 1429, t: 'Attack on Titan', p: '/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg', y: '4 seasons', s: 4 }
-    ]
-  };
+  /* ══════════════════ the player + its options ════════════ */
+  // Deliberately few. Ids, titles, art and season counts were read from TMDB
+  // (2026-09-22; backdrops 2026-11-21), not remembered; a wrong id ships a
+  // demo that plays the wrong show. Inception replaced Interstellar
+  // 2026-10-13: MovieBox (Orion) dropped Interstellar, and its fallback
+  // stalled the demo. Keep picks to titles Orion carries. 2026-11-14: the
+  // movie picks are titles with a 4K rung and several audio languages.
+  var PICKS = [
+    { kind: 'movie', id: 438631, t: 'Dune', b: '/qVgZu5BTx6pu4owCvVOm4zjTfOi.jpg', y: '2021' },
+    { kind: 'movie', id: 550, t: 'Fight Club', b: '/c6OLXfKAk5BKeR6broC8pYiCquX.jpg', y: '1999' },
+    { kind: 'movie', id: 27205, t: 'Inception', b: '/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg', y: '2010' },
+    { kind: 'tv', id: 1399, t: 'Game of Thrones', b: '/zZqpAXxVSBtxV9qPBcscfXBcL2w.jpg', y: '2011', s: 8 },
+    { kind: 'tv', id: 94605, t: 'Arcane', b: '/5cvnxEHT3e39DvT6ARw4GNCFrB0.jpg', y: '2021', s: 2 },
+    { kind: 'anime', id: 1429, t: 'Attack on Titan', b: '/rqbCbjB19amtOtFQbb3K2lgm2zv.jpg', y: '2013', s: 4 }
+  ];
+  var KIND = { movie: 'Movie', tv: 'TV', anime: 'Anime' };
+  function pick(kind, id) {
+    return PICKS.filter(function (p) { return p.id === id && routeOf(p.kind) === routeOf(kind); })[0];
+  }
 
-  var cur = { kind: 'movie', id: 438631, title: 'Dune', poster: '/v1tRXZ4JtD2Iv6fjkPvT4GiwslV.jpg', season: 1, episode: 1 };
+  var cur = { kind: 'movie', id: 438631, title: 'Dune', art: PICKS[0].b, year: '2021', season: 1, episode: 1 };
   var started = false;
 
-  var frame = $('frame'), placeholder = $('placeholder'), phBg = $('ph-bg');
-  var outCode = $('out-code'), outMode = 'url';
+  var frame = $('frame'), placeholder = $('placeholder'), phBg = $('ph-bg'), amb = $('amb');
+  var outCode = $('out-code'), outMode = 'html';
   var uId = $('u-id');
 
   // anime is TV content under the hood: one route, one catalog bucket.
@@ -937,7 +975,8 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
       (cur.kind === 'movie' ? '' : '/' + cur.season + '/' + cur.episode);
   }
   // Everything the panel controls, in the order the URL prints it.
-  var tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, download: false, scale: '', bg: '', font: '', muted: false, noauto: false };
+  function blank() { return { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, download: false, scale: '', caps: false, bg: '', font: '', muted: false, noauto: false, sub: '' }; }
+  var tune = blank();
   function buildUrl() {
     var q = [];
     // A typed-in id has no known title; the player fetches its own metadata.
@@ -952,23 +991,22 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     if (tune.exit) q.push('exit=1');
     if (tune.download) q.push('download=1');
     if (tune.scale) q.push('uiScale=' + tune.scale);
+    if (tune.caps) q.push('caps=0');
     if (tune.bg) q.push('controlBg=' + tune.bg);
     if (tune.font) q.push('font=' + encodeURIComponent(tune.font));
     if (tune.muted) q.push('muted=1');
     if (tune.noauto) q.push('autoplay=0');
+    if (tune.sub) q.push('sub=' + tune.sub);
     return baseUrl() + (q.length ? '?' + q.join('&') : '');
   }
-  function renderOut() {
-    var url = buildUrl();
-    if (outMode === 'url') outCode.textContent = url;
-    else if (outMode === 'html') outCode.textContent =
-      '<div style="position:relative;padding-bottom:56.25%;height:0">\n' +
+  function snippet(mode, url) {
+    if (mode === 'url') return url;
+    if (mode === 'html') return '<div style="position:relative;padding-bottom:56.25%;height:0">\n' +
       '  <iframe src="' + url + '"\n' +
       '    style="position:absolute;inset:0;width:100%;height:100%;border:0"\n' +
       '    allowfullscreen allow="autoplay; fullscreen"></iframe>\n' +
       '</div>';
-    else outCode.textContent =
-      'export function Player() {\n' +
+    return 'export function Player() {\n' +
       '  return (\n' +
       '    <div style={{ position: "relative", paddingBottom: "56.25%" }}>\n' +
       '      <iframe\n' +
@@ -980,6 +1018,10 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
       '    </div>\n' +
       '  );\n' +
       '}';
+  }
+  function renderOut() {
+    var url = buildUrl();
+    outCode.textContent = snippet(outMode, url);
     return url;
   }
 
@@ -989,14 +1031,20 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     if (document.activeElement !== uId) uId.value = cur.id;
     sizeId();
     $('u-ep').hidden = cur.kind === 'movie';
+    document.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c.dataset.kind === cur.kind); });
   }
   function renderNow() {
-    var kindLabel = cur.kind === 'movie' ? 'Movie' : cur.kind === 'anime' ? 'Anime' : 'TV';
-    var title = cur.title || 'TMDB ' + cur.id;
-    $('now-title').textContent = title;
-    $('now-meta').textContent = kindLabel + (cur.kind === 'movie' ? '' : ' · S' + cur.season + 'E' + cur.episode) + ' · TMDB ' + cur.id;
-    if (cur.poster) { phBg.src = IMG + 'w342' + cur.poster; phBg.style.opacity = ''; }
-    else phBg.style.opacity = '0';
+    $('now-title').textContent = cur.title || 'TMDB ' + cur.id;
+    $('now-meta').textContent = KIND[cur.kind] +
+      (cur.kind === 'movie' ? '' : ' · S' + cur.season + ' E' + cur.episode) +
+      (cur.year ? ' · ' + cur.year : '');
+    // Art we do not have (a typed-in id) leaves the plain dark card.
+    phBg.hidden = amb.hidden = !cur.art;
+    if (cur.art) {
+      var big = IMG + 'w1280' + cur.art, small = IMG + 'w300' + cur.art;
+      if (phBg.src !== big) phBg.src = big;
+      if (amb.src !== small) amb.src = small;
+    }
   }
 
   function loadPlayer() {
@@ -1030,7 +1078,7 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
 
   function select(item, kind, play) {
     cur.kind = kind || cur.kind;
-    cur.id = item.id; cur.title = item.t || ''; cur.poster = item.p || '';
+    cur.id = item.id; cur.title = item.t || ''; cur.art = item.b || ''; cur.year = item.y || '';
     cur.season = 1; cur.episode = 1;
     markPick();
     if (cur.kind !== 'movie') {
@@ -1044,7 +1092,11 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     refresh(play);
   }
   function markPick() {
-    document.querySelectorAll('.pick').forEach(function (p) { p.classList.toggle('on', Number(p.dataset.id) === cur.id); });
+    document.querySelectorAll('.pick').forEach(function (p) {
+      var on = Number(p.dataset.id) === cur.id && routeOf(p.dataset.kind) === routeOf(cur.kind);
+      p.classList.toggle('on', on);
+      p.setAttribute('aria-pressed', on);
+    });
   }
 
   /* ── TMDB proxy (Pages Function). Degrades to a generic range if absent. ── */
@@ -1059,29 +1111,21 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-  /* ── picks + chips ───────────────────────────────────────── */
-  function renderPicks() {
-    $('picks').innerHTML = PICKS[cur.kind].map(function (p) {
-      return '<button class="pick" type="button" data-id="' + p.id + '">' + esc(p.t) + '<small>' + esc(p.y) + '</small></button>';
-    }).join('');
-    $('picks').insertAdjacentHTML('afterbegin', '<span class="lab">Try</span>');
-    $('picks').querySelectorAll('.pick').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var p = PICKS[cur.kind].filter(function (x) { return x.id === Number(b.dataset.id); })[0];
-        select(p, cur.kind, true);
-      });
-    });
-    markPick();
-  }
-  function setKind(kind) {
-    cur.kind = kind;
-    document.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c.dataset.kind === kind); });
-    renderPicks();
-  }
+  /* ── the rail of titles, and Movie / TV / Anime ──────────── */
+  $('picks').innerHTML = PICKS.map(function (p) {
+    return '<button class="pick" type="button" data-id="' + p.id + '" data-kind="' + p.kind + '">' +
+      '<img alt="" loading="lazy" width="300" height="169" src="' + IMG + 'w300' + p.b + '">' +
+      '<b>' + esc(p.t) + '</b><small>' + KIND[p.kind] + ' · ' + esc(p.y) + '</small></button>';
+  }).join('');
+  $('picks').addEventListener('click', function (e) {
+    var b = e.target.closest('.pick'); if (!b) return;
+    var p = PICKS.filter(function (x) { return x.id === Number(b.dataset.id) && x.kind === b.dataset.kind; })[0];
+    select(p, p.kind, true);
+  });
   document.querySelectorAll('.chip').forEach(function (c) {
     c.addEventListener('click', function () {
-      setKind(c.dataset.kind);
-      select(PICKS[c.dataset.kind][0], c.dataset.kind, true);
+      var first = PICKS.filter(function (p) { return p.kind === c.dataset.kind; })[0];
+      select(first, c.dataset.kind, true);
     });
   });
   $('season').addEventListener('change', function () {
@@ -1095,10 +1139,11 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     var id = Number(String(uId.value).replace(/\D/g, ''));
     if (!id) { uId.value = cur.id; sizeId(); return; }
     if (id === cur.id) { if (play) loadPlayer(); return; }
-    var known = PICKS[cur.kind].filter(function (p) { return p.id === id; })[0];
-    if (known) select(known, cur.kind, play);
+    var known = pick(cur.kind, id);
+    if (known) select(known, known.kind, play);
     else {
-      cur.id = id; cur.title = ''; cur.poster = ''; cur.season = 1; cur.episode = 1;
+      cur.id = id; cur.title = ''; cur.art = ''; cur.year = ''; cur.season = 1; cur.episode = 1;
+      if (cur.kind === 'anime') cur.kind = 'tv';
       markPick();
       if (cur.kind !== 'movie') { fillEpisodes(null); tmdb('tv/' + id).then(function (d) { if (d && d.seasons && d.seasons.length && cur.id === id) fillEpisodes(d.seasons); }); }
       refresh(play);
@@ -1109,14 +1154,14 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
   uId.addEventListener('blur', function () { commitId(false); });
   $('u-play').addEventListener('click', function () { commitId(true); });
 
-  document.querySelectorAll('.out-tabs button').forEach(function (b) {
+  document.querySelectorAll('#out-tabs button').forEach(function (b) {
     b.addEventListener('click', function () {
-      document.querySelectorAll('.out-tabs button').forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on'); outMode = b.dataset.out; renderOut();
+      document.querySelectorAll('#out-tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      outMode = b.dataset.out; renderOut();
     });
   });
   $('out-copy').addEventListener('click', function () { copy(outCode.textContent, this); });
-  $('hero-copy').addEventListener('click', function () { commitId(false); copy(buildUrl(), this); });
+  $('cta-copy').addEventListener('click', function () { commitId(false); copy(snippet('html', buildUrl()), this); });
   placeholder.addEventListener('click', loadPlayer);
   // What a host page does for TV: name the next episode once the player has
   // loaded (that is what puts the Next episode button in the bar), then switch
@@ -1143,7 +1188,7 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     frame.src = 'about:blank'; frame.style.display = 'none'; placeholder.style.display = ''; started = false;
   });
 
-  /* ── the tune panel ──────────────────────────────────────── */
+  /* ── the options ─────────────────────────────────────────── */
   var tuneTimer = null;
   function tuned(now) {
     clearTimeout(tuneTimer);
@@ -1159,13 +1204,12 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
     tuned();
   });
   $('t-poster').addEventListener('input', function () { tune.poster = httpsOnly(this.value); tuned(); });
-  $('t-watermark').addEventListener('change', function () { tune.watermark = this.checked; tuned(true); });
-  $('t-showtitle').addEventListener('change', function () { tune.showTitle = this.checked; tuned(true); });
-  $('t-exit').addEventListener('change', function () { tune.exit = this.checked; tuned(true); });
-  $('t-download').addEventListener('change', function () { tune.download = this.checked; tuned(true); });
-  $('t-muted').addEventListener('change', function () { tune.muted = this.checked; tuned(true); });
-  $('t-noauto').addEventListener('change', function () { tune.noauto = this.checked; tuned(true); });
+  var CHECKS = { 't-watermark': 'watermark', 't-showtitle': 'showTitle', 't-exit': 'exit', 't-download': 'download', 't-muted': 'muted', 't-noauto': 'noauto', 't-caps': 'caps' };
+  Object.keys(CHECKS).forEach(function (id) {
+    $(id).addEventListener('change', function () { tune[CHECKS[id]] = this.checked; tuned(true); });
+  });
   $('t-font').addEventListener('change', function () { tune.font = this.value; tuned(true); });
+  $('t-sub').addEventListener('change', function () { tune.sub = this.value; tuned(true); });
   function seg(id, key, attr) {
     document.querySelectorAll('#' + id + ' button').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -1187,23 +1231,25 @@ iframe.<span class="tk-fn">addEventListener</span>(<span class="tk-str">"load"</
   });
   $('t-color').addEventListener('input', function () { setColor(this.value.replace('#', '').toLowerCase()); });
   document.querySelectorAll('#t-hide .hd').forEach(function (b) {
+    b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', function () {
       var k = b.dataset.h, i = tune.hide.indexOf(k);
       if (i < 0) tune.hide.push(k); else tune.hide.splice(i, 1);
       b.classList.toggle('on', i < 0);
+      b.setAttribute('aria-pressed', i < 0);
       tuned(true);
     });
   });
   $('tune-reset').addEventListener('click', function () {
-    tune = { brand: '', color: '', logo: '', poster: '', watermark: false, hide: [], showTitle: false, exit: false, download: false, scale: '', bg: '', font: '', muted: false, noauto: false };
-    $('t-brand').value = $('t-logo').value = $('t-poster').value = $('t-font').value = '';
-    $('t-watermark').checked = $('t-showtitle').checked = $('t-exit').checked = $('t-download').checked = $('t-muted').checked = $('t-noauto').checked = false;
+    tune = blank();
+    $('t-brand').value = $('t-logo').value = $('t-poster').value = $('t-font').value = $('t-sub').value = '';
+    Object.keys(CHECKS).forEach(function (id) { $(id).checked = false; });
     document.querySelectorAll('#t-scale button,#t-bg button').forEach(function (b) { b.classList.toggle('on', b.dataset.s === '' || b.dataset.b === ''); }); $('t-watermark').disabled = true;
-    document.querySelectorAll('#t-hide .hd').forEach(function (b) { b.classList.remove('on'); });
+    document.querySelectorAll('#t-hide .hd').forEach(function (b) { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); });
     setColor('');
   });
 
-  setKind('movie');
+  markPick();
   refresh(false);
 })();
 </script>
