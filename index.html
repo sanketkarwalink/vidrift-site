@@ -659,7 +659,7 @@ https://embed.vidrift.net/embed/anilist/{anilist_id}/{episode}
 
     <h2 id="nextup">Auto next episode</h2>
     <p>For TV and anime the player shows a five-second Up Next card with the next episode's still as the credits start (The Intro DB for TV, AniSkip's ending marker for anime, 30 seconds before the end as the fallback), then plays the next one in the same iframe. It knows the next episode from the same season list the Episodes button uses, so by default there is nothing to do.</p>
-    <p>A page that drives episodes itself takes over with the two messages below. Once your page has sent <code>vidrift:nextup-info</code>, the card and the Next episode button in the control bar follow your page: the countdown or a click sends <code>vidrift:nextup-play</code> and your page swaps the URL. Send <code>next: null</code> on the last episode and the button goes away; <code>hide=next</code> removes it for good.</p>
+    <p>A page that drives episodes itself takes over with the two messages below. Once your page has sent <code>vidrift:nextup-info</code>, the card and the Next episode button in the control bar follow your page: the countdown or a click sends <code>vidrift:nextup-play</code> and your page swaps the URL. Send <code>next: null</code> on the last episode and the button goes away; <code>hide=next</code> removes the button and the card for good. <code>autonext=0</code> keeps the card but stops the player moving on by itself.</p>
     <span class="cap">1 · Parent → Player, once the iframe has loaded (only if your page drives episodes)</span>
     <div class="codeblock"><button class="cp" type="button">Copy</button><pre>iframe.contentWindow.<span class="tk-fn">postMessage</span>({
   type: <span class="tk-str">"vidrift:nextup-info"</span>,
